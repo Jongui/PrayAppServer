@@ -1,0 +1,141 @@
+package br.com.joaogd53.ads.controller;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import br.com.joaogd53.ads.dto.UserDto;
+import br.com.joaogd53.ads.exceptions.BadRequestException;
+import br.com.joaogd53.ads.exceptions.EmailNotMatchException;
+import br.com.joaogd53.ads.exceptions.EmailNotUniqueException;
+import br.com.joaogd53.ads.exceptions.NotFoundException;
+import br.com.joaogd53.ads.model.Church;
+import br.com.joaogd53.ads.model.User;
+import br.com.joaogd53.ads.repository.ChurchRepository;
+import br.com.joaogd53.ads.repository.UserRepository;
+
+@RestController
+@RequestMapping(path = UserController.PATH)
+@RequestScope // @Scope(WebApplicationContext.SCOPE_REQUEST)
+@Validated
+public class UserController {
+	public static final String PATH = "/api/v1/user";
+
+	@Autowired
+	private ChurchRepository churchRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	@Inject
+	public UserController(UserRepository repository) {
+		this.userRepository = repository;
+	}
+
+	@GetMapping
+	public UserList users() {
+		return new UserList((Collection<User>) this.userRepository.findAll());
+	}
+
+	@GetMapping("/{id}")
+	// We do not use primitive "long" type here to avoid unnecessary autoboxing
+	public UserDto userById(@PathVariable("id") Long id) {
+		throwIfNoExisting(id);
+		User user = this.userRepository.findById(id).get();
+		return new UserDto(user);
+	}
+
+	@GetMapping("/email/{email:.+}")
+	public UserList userByEmail(@PathVariable("email") String email) {
+		UserList ret = new UserList((Collection<User>) this.userRepository.findByEmail(email));
+		return ret;
+	}
+
+	@GetMapping("/church/{idChurch}")
+	public UserList usersByChurch(@PathVariable("idChurch") String idChurchString) {
+		Church church = churchRepository.findById(Long.valueOf(idChurchString)).get();
+		UserList ret = new UserList((Collection<User>) this.userRepository.findByChurch(church));
+		return ret;
+	}
+
+	@PostMapping
+	public ResponseEntity<UserDto> add(@Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
+			throws URISyntaxException {
+		this.throwIfEmailNotUnique(userDto);
+		Church church = churchRepository.findById(userDto.getChurch()).get();
+		User user = new User(userDto, church);
+		User userSaved = userRepository.save(user);
+		UriComponents uriComponents = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(userSaved.getIdUser());
+		return ResponseEntity.created(new URI(uriComponents.getPath())).body(new UserDto(user));
+	}
+
+	@PutMapping("/{id}")
+	public UserDto update(@PathVariable("id") long id, @RequestBody UserDto userDto) {
+		throwIfInconsistent(id, userDto.getIdUser());
+		throwIfNoExisting(id);
+		throwIfEmailNotMatch(userDto);
+		Church church = churchRepository.findById(userDto.getChurch()).get();
+		User userSaved = this.userRepository.save(new User(userDto, church));
+		return new UserDto(userSaved);
+	}
+
+	private void throwIfEmailNotMatch(UserDto userDto) {
+		User user = userRepository.findById(userDto.getIdUser()).get();
+		if(!user.getEmail().equalsIgnoreCase(userDto.getEmail()))
+			throw new EmailNotMatchException("Email not match");
+	}
+
+	private void throwIfEmailNotUnique(UserDto user) {
+		List<User> list = this.userRepository.findByEmail(user.getEmail());
+		if (list.size() > 0)
+			throw new EmailNotUniqueException("Email not unique");
+	}
+
+	private void throwIfNoExisting(long id) {
+		if (!userRepository.existsById(id)) {
+			throw new NotFoundException(id + " not found");
+		}
+	}
+
+	private void throwIfInconsistent(Long expected, Long actual) {
+		if (!expected.equals(actual)) {
+			String message = String.format(
+					"bad request, inconsistent IDs between request and object: request id = %d, object id = %d",
+					expected, actual);
+			throw new BadRequestException(message);
+		}
+	}
+
+	public static class UserList {
+		@JsonProperty("value")
+		public List<UserDto> users = new ArrayList<>();
+
+		public UserList(Iterable<User> usersAdd) {
+			usersAdd.forEach((user) -> {
+				users.add(new UserDto(user));
+			});
+		}
+	}
+
+}

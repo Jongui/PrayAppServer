@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="5.3.2" timestamp="2018-12-01T17:43:24.196">
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/UserPray.java">
+<violation beginline="37" endline="37" begincolumn="37" endcolumn="47" rule="UnusedFormalParameter" ruleset="Unused Code" package="br.com.joaogd53.ads.model" class="UserPray" method="UserPray" variable="userPrayDto" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused constructor parameters such as 'userPrayDto'.
+</violation>
+</file>
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/UserPrayIdentity.java">
+<violation beginline="48" endline="51" begincolumn="16" endcolumn="9" rule="UselessOverridingMethod" ruleset="Unnecessary" package="br.com.joaogd53.ads.model" class="UserPrayIdentity" method="hashCode" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unnecessary.html#UselessOverridingMethod" priority="3">
+Overriding method merely calls super
+</violation>
+<violation beginline="54" endline="57" begincolumn="16" endcolumn="9" rule="UselessOverridingMethod" ruleset="Unnecessary" package="br.com.joaogd53.ads.model" class="UserPrayIdentity" method="equals" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unnecessary.html#UselessOverridingMethod" priority="3">
+Overriding method merely calls super
+</violation>
+</file>
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/ChurchRepositoryCustom.java">
+<violation beginline="9" endline="9" begincolumn="16" endcolumn="52" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="ChurchRepositoryCustom" method="findByCity" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+<violation beginline="10" endline="10" begincolumn="16" endcolumn="56" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="ChurchRepositoryCustom" method="findByRegion" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+<violation beginline="11" endline="11" begincolumn="16" endcolumn="58" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="ChurchRepositoryCustom" method="findByCountry" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+</file>
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/PrayRespositoryCustom.java">
+<violation beginline="9" endline="9" begincolumn="16" endcolumn="51" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="PrayRespositoryCustom" method="findByCreator" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+</file>
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/UserPrayRepositoryCustom.java">
+<violation beginline="9" endline="9" begincolumn="16" endcolumn="54" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserPrayRepositoryCustom" method="findByIdUser" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+</file>
+<file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/UserRepositoryCustom.java">
+<violation beginline="9" endline="9" begincolumn="16" endcolumn="52" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserRepositoryCustom" method="findByEmail" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+<violation beginline="10" endline="10" begincolumn="16" endcolumn="54" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserRepositoryCustom" method="findByChurch" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+</file>
+</pmd>

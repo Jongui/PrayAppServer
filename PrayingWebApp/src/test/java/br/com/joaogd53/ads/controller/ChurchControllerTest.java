@@ -1,0 +1,330 @@
+package br.com.joaogd53.ads.controller;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import javax.inject.Inject;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.com.joaogd53.ads.config.WebAppContextConfig;
+import br.com.joaogd53.ads.model.Church;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { WebAppContextConfig.class })
+@WebAppConfiguration
+public class ChurchControllerTest {
+	private static final String LOCATION = "Location";
+
+	@Inject
+	private WebApplicationContext context;
+
+	private MockMvc mockMvc;
+
+	@Before
+	public void setUp() throws Exception {
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+	}
+
+	@Test
+	public void create() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isCreated())
+				.andExpect(header().string(LOCATION, is(not(""))))
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.name", is(church.getName()))); // requires
+		// com.jayway.jsonpath:json-path
+	}
+
+	@Test
+	public void createBlancName() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("Brasil");
+		church.setName("");
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createNullName() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("Brasil");
+		church.setName(null);
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createBlancCity() throws Exception {
+		Church church = new Church();
+		church.setCity("");
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createNullCity() throws Exception {
+		Church church = new Church();
+		church.setCity(null);
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createBlancCountry() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createNullCountry() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry(null);
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createBlancRegion() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("");
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void createNullRegion() throws Exception {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion(null);
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void readAll() throws Exception {
+		mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
+		Church church = this.mockChurchToSave();
+
+		mockMvc.perform(buildPostRequest(church)).andExpect(status().isCreated());
+
+		mockMvc.perform(buildGetRequest("")).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
+	}
+
+	@Test
+	public void readByIdNotFound() throws Exception {
+		mockMvc.perform(buildGetRequest("4711")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void readByIdNegative() throws Exception {
+		mockMvc.perform(buildGetRequest("-1")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void readById() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+
+		mockMvc.perform(buildGetRequest(id))
+					.andExpect(status().isOk())
+					.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+					.andExpect(jsonPath("$.city", is("Curitiba")));
+	}
+
+	@Test
+	public void searchByCity() throws Exception {
+		Church curitiba = this.mockChurchToSave("Curitiba");
+		mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
+		mockMvc.perform(buildPostRequest(curitiba)).andExpect(status().isCreated());
+		mockMvc.perform(buildGetRequestByCity(curitiba.getCity())).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.length()", is(equalTo(1))));
+	}
+
+	@Test
+	public void searchByCountry() throws Exception {
+		Church curitiba = this.mockChurchToSave("Curitiba");
+		mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
+		mockMvc.perform(buildPostRequest(curitiba)).andExpect(status().isCreated());
+		mockMvc.perform(buildGetRequestByCountry(curitiba.getCountry())).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.length()", is(equalTo(1))));
+	}
+
+	@Test
+	public void searchByRegion() throws Exception {
+		Church curitiba = this.mockChurchToSave("Curitiba");
+		mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
+		mockMvc.perform(buildPostRequest(curitiba)).andExpect(status().isCreated());
+		mockMvc.perform(buildGetRequestByRegion(curitiba.getRegion())).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.length()", is(equalTo(1))));
+	}
+
+	@Test
+	public void updateChurchById() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+		church.setCity("Palmeira");
+		mockMvc.perform(buildPutRequest(id, church))
+        	.andExpect(status().isOk())
+        	.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+        	.andExpect(jsonPath("$.city", is("Palmeira")));
+	}
+	
+	@Test
+	public void updateChurchInvalidCity() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+		church.setCity("");
+		mockMvc.perform(buildPutRequest(id, church))
+        	.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void updateChurchInvalidConutry() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+		church.setCountry("");
+		mockMvc.perform(buildPutRequest(id, church))
+        	.andExpect(status().isBadRequest());
+	}
+	
+	@Test
+	public void updateChurchInvalidName() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+		church.setName("");
+		mockMvc.perform(buildPutRequest(id, church))
+        	.andExpect(status().isBadRequest());
+	}
+	
+	@Test
+	public void updateChurchInvalidRegion() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+		church.setRegion("");
+		mockMvc.perform(buildPutRequest(id, church))
+        	.andExpect(status().isBadRequest());
+	}
+
+	private MockHttpServletRequestBuilder buildDeleteRequest(String id) throws Exception {
+		return delete(ChurchController.PATH + "/" + id);
+	}
+
+	private MockHttpServletRequestBuilder buildPostRequest(Church church) throws Exception {
+		// post the advertisement as a JSON entity in the request body
+		return post(ChurchController.PATH).content(toJson(church))
+				.contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
+		return get(ChurchController.PATH + "/" + id).header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildGetRequestByCity(String city) throws Exception {
+		return get(ChurchController.PATH + "/city/" + city).header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildGetRequestByCountry(String country) throws Exception {
+		return get(ChurchController.PATH + "/country/" + country).header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildGetRequestByRegion(String region) throws Exception {
+		return get(ChurchController.PATH + "/region/" + region).header("Authorization","test");
+	}
+
+	private String toJson(Object object) throws JsonProcessingException {
+		return new ObjectMapper().writeValueAsString(object);
+	}
+
+	private String performPostAndGetId(Church church) throws Exception {
+		MockHttpServletResponse response = mockMvc.perform(buildPostRequest(church))
+				.andExpect(status().isCreated()).andReturn().getResponse();
+
+		return getIdFromLocation(response.getHeader(LOCATION));
+	}
+
+	private MockHttpServletRequestBuilder buildPutRequest(String id, Church church) throws Exception {
+		return put(ChurchController.PATH + "/" + id)
+				.content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization","test");
+	}
+
+	private String getIdFromLocation(String location) {
+		return location.substring(location.lastIndexOf('/') + 1);
+	}
+
+	private Church mockChurchToSave() {
+		Church church = new Church();
+		church.setCity("Curitiba");
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		return church;
+	}
+
+	private Church mockChurchToSave(String city) {
+		Church church = new Church();
+		church.setCity(city);
+		church.setCountry("Brasil");
+		church.setName("Primeira igreja irmãos menonitas do boqueirão");
+		church.setRegion("Paraná");
+		return church;
+	}
+}
