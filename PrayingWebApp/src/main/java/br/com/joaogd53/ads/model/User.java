@@ -42,6 +42,8 @@ public class User {
 	private String city;
 	@Column(name = "country")
 	private String country;
+	@Column(name ="avatarUrl")
+	private String avatarUrl;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "church")
 	private Church church;
@@ -59,6 +61,7 @@ public class User {
 		this.userName = userDto.getUserName();
 		this.city = userDto.getCity();
 		this.country = userDto.getCountry();
+		this.avatarUrl = userDto.getAvatarUrl();
 		this.church = church;
 	}
 
@@ -100,6 +103,14 @@ public class User {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 
 	public Church getChurch() {

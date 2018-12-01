@@ -9,6 +9,7 @@ public class UserDto {
 	private String userName;
 	private String city;
 	private String country;
+	private String avatarUrl;
 	private Long church;
 
 	public UserDto() {
@@ -21,6 +22,7 @@ public class UserDto {
 		this.userName = user.getUserName();
 		this.city = user.getCity();
 		this.country = user.getCountry();
+		this.avatarUrl = user.getAvatarUrl();
 		this.church = user.getChurch().getIdChurch();
 	}
 
@@ -62,6 +64,14 @@ public class UserDto {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 
 	public Long getChurch() {

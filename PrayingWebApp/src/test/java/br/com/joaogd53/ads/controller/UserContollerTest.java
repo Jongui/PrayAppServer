@@ -199,6 +199,7 @@ public class UserContollerTest {
 		user.setCity("Curitiba");
 		user.setCountry("Brasil");
 		user.setEmail(email);
+		user.setAvatarUrl("avatarURL");
 		// user.setIdUser(new Long(1));
 		user.setUserName("Jongui");
 		return user;

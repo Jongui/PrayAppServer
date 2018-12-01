@@ -162,6 +162,7 @@ public class PrayControllerTest {
 		user.setCountry("Brasil");
 		user.setEmail(email);
 		user.setUserName("Jongui");
+		user.setAvatarUrl("AvatarUrl");
 		String id = this.performUserPostAndGetId(user);
 		user.setIdUser(new Long(id));
 		return user;
