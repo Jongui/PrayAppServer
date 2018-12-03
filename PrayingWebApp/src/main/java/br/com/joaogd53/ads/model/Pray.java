@@ -40,7 +40,7 @@ public class Pray {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "creator")
 	private User creator;
-	@OneToMany(mappedBy = "id.pray", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "id.pray", cascade = CascadeType.ALL, orphanRemoval = false)
 	@JsonIgnore
 	private Set<UserPray> userPray;
 

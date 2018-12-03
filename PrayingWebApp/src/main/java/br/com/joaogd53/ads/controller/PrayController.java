@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,6 +70,13 @@ public class PrayController {
 		Pray praySaved = this.prayRepository.save(pray);
 		UriComponents uriComponents = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(praySaved.getIdPray());
 		return ResponseEntity.created(new URI(uriComponents.getPath())).body(new PrayDto(praySaved));
+	}
+	
+	@PutMapping("/{id}")
+	public PrayDto update(@RequestHeader("Authorization")String token, @PathVariable("id") long id, @RequestBody PrayDto prayDto) {
+		User user = userRepository.findById(prayDto.getCreator()).get();
+		Pray pray = new Pray(prayDto, user);
+		return new PrayDto(this.prayRepository.save(pray));
 	}
 
 	public static class PrayList {

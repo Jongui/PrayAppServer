@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -88,10 +89,32 @@ public class PrayControllerTest {
 				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
 	}
+	
+	@Test
+	public void editPray() throws Exception{
+		Pray pray = this.mockPray("joaogd533@gmail.com");
+		String id = this.performPostAndGetId(pray);
+		pray.setIdPray(new Long(id));
+		
+		pray.setDescription("New Description");
+		
+		mockMvc.perform(buildPutRequest(id, new PrayDto(pray)))
+    	.andExpect(status().isOk())
+    	.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+    	.andExpect(jsonPath("$.description", is("New Description")));
+
+	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(PrayDto pray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
 		return post(PrayController.PATH).
+				content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildPutRequest(String id, PrayDto pray) throws Exception {
+		// post the advertisement as a JSON entity in the request body
+		return put(PrayController.PATH + "/" + id).
 				content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
 				.header("Authorization","test");
 	}
