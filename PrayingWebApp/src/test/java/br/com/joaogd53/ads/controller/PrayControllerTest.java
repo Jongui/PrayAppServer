@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.inject.Inject;
 
@@ -89,55 +90,61 @@ public class PrayControllerTest {
 				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
 	}
-	
+
 	@Test
-	public void editPray() throws Exception{
+	public void editPray() throws Exception {
 		Pray pray = this.mockPray("joaogd533@gmail.com");
 		String id = this.performPostAndGetId(pray);
 		pray.setIdPray(new Long(id));
-		
-		pray.setDescription("New Description");
-		
-		mockMvc.perform(buildPutRequest(id, new PrayDto(pray)))
-    	.andExpect(status().isOk())
-    	.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-    	.andExpect(jsonPath("$.description", is("New Description")));
 
+		pray.setDescription("New Description");
+
+		mockMvc.perform(buildPutRequest(id, new PrayDto(pray))).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.description", is("New Description")));
+
+	}
+
+	@Test
+	public void prayDateValidation() throws Exception {
+		Pray pray = this.mockPray("joaogd534@gmail.com");
+		GregorianCalendar newCalendar = new GregorianCalendar();
+		newCalendar.setTime(pray.getBeginDate());
+		newCalendar.add(GregorianCalendar.DATE, -1);
+		pray.setEndDate(newCalendar.getTime());
+
+		mockMvc.perform(buildPostRequest(new PrayDto(pray))).andExpect(status().isBadRequest());
 	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(PrayDto pray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
-		return post(PrayController.PATH).
-				content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(PrayController.PATH).content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildPutRequest(String id, PrayDto pray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
-		return put(PrayController.PATH + "/" + id).
-				content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return put(PrayController.PATH + "/" + id).content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildUserPostRequest(UserDto user) throws Exception {
-		return post(UserController.PATH)
-				.content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(UserController.PATH).content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildChurchPostRequest(Church church) throws Exception {
 		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH)
-				.content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(ChurchController.PATH).content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
-		return get(PrayController.PATH + "/" + id).header("Authorization","test");
+		return get(PrayController.PATH + "/" + id).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetByUserRequest(String id) throws Exception {
-		return get(PrayController.PATH + "/user/" + id).header("Authorization","test");
+		return get(PrayController.PATH + "/user/" + id).header("Authorization", "test");
 	}
 
 	private String toJson(Object object) throws JsonProcessingException {

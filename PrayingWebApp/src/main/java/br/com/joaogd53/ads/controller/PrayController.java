@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.com.joaogd53.ads.dto.PrayDto;
+import br.com.joaogd53.ads.exceptions.EndDateBeforeStartDateException;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
 import br.com.joaogd53.ads.repository.PrayRepository;
@@ -65,6 +67,7 @@ public class PrayController {
 	@PostMapping
 	public ResponseEntity<PrayDto> add(@RequestHeader("Authorization")String token, @Valid @RequestBody PrayDto prayDto, UriComponentsBuilder uriComponentsBuilder)
 			throws URISyntaxException {
+		this.throwIfIllegalDate(prayDto);
 		User user = userRepository.findById(prayDto.getCreator()).get();
 		Pray pray = new Pray(prayDto, user);
 		Pray praySaved = this.prayRepository.save(pray);
@@ -79,6 +82,13 @@ public class PrayController {
 		return new PrayDto(this.prayRepository.save(pray));
 	}
 
+	private void throwIfIllegalDate(@Valid PrayDto prayDto) {
+		Date beginDate = prayDto.getBeginDate();
+		Date endDate = prayDto.getEndDate();
+		if(endDate.before(beginDate))
+			throw new EndDateBeforeStartDateException("End date before start date");
+	}
+	
 	public static class PrayList {
 		@JsonProperty("value")
 		public List<PrayDto> prays = new ArrayList<>();
