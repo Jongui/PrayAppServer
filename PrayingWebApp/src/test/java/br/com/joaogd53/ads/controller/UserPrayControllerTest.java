@@ -8,11 +8,13 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.inject.Inject;
 
@@ -87,8 +89,8 @@ public class UserPrayControllerTest {
 	}
 
 	@Test
-	public void findPrayUsers() throws Exception{
-		//Fist pray user
+	public void findPrayUsers() throws Exception {
+		// Fist pray user
 		Pray pray = this.mockPray("joaogd532@gmail.com");
 		User user = this.mockUserInstance("joaogd53teste2@gmail.com");
 		UserPray userPray = new UserPray();
@@ -97,8 +99,8 @@ public class UserPrayControllerTest {
 		userPray.setRate(4);
 		UserPrayDto userPrayDto = new UserPrayDto(userPray);
 		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
-		
-		//Second pray user
+
+		// Second pray user
 		user = this.mockUserInstance("joaogd53teste3@gmail.com");
 		userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
@@ -107,35 +109,60 @@ public class UserPrayControllerTest {
 		userPrayDto = new UserPrayDto(userPray);
 		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
 		mockMvc.perform(buildGetByPrayRequest(pray.getIdPray().toString())).andExpect(status().isOk())
-			.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-			.andExpect(jsonPath("$.value.length()", is(equalTo(2))));
-	}
-	
-	private MockHttpServletRequestBuilder buildPostRequest(UserPrayDto userPray) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(UserPrayController.PATH)
-				.content(toJson(userPray)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.value.length()", is(equalTo(2))));
 	}
 
+	@Test
+	public void changeUserPrayStartDate() throws Exception {
+		// Fist pray user
+		Pray pray = this.mockPray("joaogd534@gmail.com");
+		User user = this.mockUserInstance("joaogd53teste4@gmail.com");
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(new Date());
+		calendar.add(GregorianCalendar.DATE, 5);
+		
+		UserPray userPray = new UserPray();
+		userPray.setAcceptanceDate(new Date());
+		userPray.setExitDate(calendar.getTime());
+		userPray.setId(new UserPrayIdentity(user, pray));
+		userPray.setRate(4);
+		UserPrayDto userPrayDto = new UserPrayDto(userPray);
+		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
+		
+		userPray.setRate(5);
+		userPrayDto = new UserPrayDto(userPray);
+		mockMvc.perform(buildPutRequest(userPrayDto)).andExpect(status().isOk())
+			.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+			.andExpect(jsonPath("$.rate", is(equalTo(5))));
+	}
+
+	private MockHttpServletRequestBuilder buildPostRequest(UserPrayDto userPray) throws Exception {
+		// post the advertisement as a JSON entity in the request body
+		return post(UserPrayController.PATH).content(toJson(userPray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
+	}
+
+	private MockHttpServletRequestBuilder buildPutRequest(UserPrayDto userPray) throws Exception{
+		return put(UserPrayController.PATH + "/" + userPray.getUser()).content(toJson(userPray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
+	}
+	
 	private MockHttpServletRequestBuilder buildPrayPostRequest(PrayDto pray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
-		return post(PrayController.PATH)
-				.content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(PrayController.PATH).content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildUserPostRequest(UserDto user) throws Exception {
-		return post(UserController.PATH)
-				.content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(UserController.PATH).content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildChurchPostRequest(Church church) throws Exception {
 		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH)
-				.content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(ChurchController.PATH).content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private String performPrayPostAndGetId(Pray pray) throws Exception {
@@ -160,11 +187,11 @@ public class UserPrayControllerTest {
 	}
 
 	private MockHttpServletRequestBuilder buildGetByUserRequest(String id) throws Exception {
-		return get(UserPrayController.PATH + "/user/" + id).header("Authorization","test");
+		return get(UserPrayController.PATH + "/user/" + id).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetByPrayRequest(String id) throws Exception {
-		return get(UserPrayController.PATH + "/pray/" + id).header("Authorization","test");
+		return get(UserPrayController.PATH + "/pray/" + id).header("Authorization", "test");
 	}
 
 	private String getIdFromLocation(String location) {

@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,21 +46,21 @@ public class UserPrayController {
 	private PrayRepository prayRepository;
 
 	@GetMapping("/user/{idUser}")
-	public UserPrayList prayByUser(@RequestHeader("Authorization")String token, @PathVariable("idUser") Long id) {
+	public UserPrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id) {
 		User user = userRepository.findById(id).get();
 		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdUser(user));
 		return prayList;
 	}
 
 	@GetMapping("/pray/{idPray}")
-	public UserPrayList userByPray(@RequestHeader("Authorization")String token, @PathVariable("idPray") Long id) {
+	public UserPrayList userByPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
 		Pray pray = prayRepository.findById(id).get();
 		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdPray(pray));
 		return prayList;
 	}
-	
+
 	@PostMapping
-	public UserPrayDto add(@RequestHeader("Authorization")String token, @Valid @RequestBody UserPrayDto userPrayDto) {
+	public UserPrayDto add(@RequestHeader("Authorization") String token, @Valid @RequestBody UserPrayDto userPrayDto) {
 		UserPray userPraySaved;
 		Pray pray = prayRepository.findById(userPrayDto.getPray()).get();
 		User user = userRepository.findById(userPrayDto.getUser()).get();
@@ -72,6 +73,18 @@ public class UserPrayController {
 			ex.printStackTrace();
 		}
 		return new UserPrayDto(userPraySaved);
+	}
+
+	@PutMapping("/{idUser}")
+	public UserPrayDto update(@RequestHeader("Authorization") String token, @PathVariable("idUser") long id,
+			@RequestBody UserPrayDto userPrayDto) {
+		User user = this.userRepository.findById(id).get();
+		Pray pray = this.prayRepository.findById(userPrayDto.getPray()).get();
+		UserPray userPray = this.userPrayRepository.findById(new UserPrayIdentity(user, pray)).get();
+		userPray.setAcceptanceDate(userPrayDto.getAcceptanceDate());
+		userPray.setExitDate(userPrayDto.getExitDate());
+		userPray.setRate(userPrayDto.getRate());
+		return new UserPrayDto(this.userPrayRepository.save(userPray));
 	}
 
 	public static class UserPrayList {
