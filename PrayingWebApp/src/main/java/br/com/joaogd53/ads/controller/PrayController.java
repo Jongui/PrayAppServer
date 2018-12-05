@@ -78,7 +78,11 @@ public class PrayController {
 	@PutMapping("/{id}")
 	public PrayDto update(@RequestHeader("Authorization")String token, @PathVariable("id") long id, @RequestBody PrayDto prayDto) {
 		User user = userRepository.findById(prayDto.getCreator()).get();
-		Pray pray = new Pray(prayDto, user);
+		Pray pray = prayRepository.findById(id).get();
+		pray.setBeginDate(prayDto.getBeginDate());
+		pray.setCreator(user);
+		pray.setDescription(prayDto.getDescription());
+		pray.setEndDate(prayDto.getEndDate());
 		return new PrayDto(this.prayRepository.save(pray));
 	}
 

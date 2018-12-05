@@ -25,6 +25,7 @@ br/com/joaogd53/ads/repository/ChurchRepositoryCustom.class
 br/com/joaogd53/ads/model/User.class
 br/com/joaogd53/ads/dto/UserDto.class
 br/com/joaogd53/ads/repository/PrayRepository.class
+br/com/joaogd53/ads/exceptions/EndDateBeforeStartDateException.class
 br/com/joaogd53/ads/dto/PrayDto.class
 br/com/joaogd53/ads/controller/PrayController$PrayList.class
 br/com/joaogd53/ads/exceptions/BadRequestException.class

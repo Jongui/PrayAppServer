@@ -1,5 +1,6 @@
 package br.com.joaogd53.ads.controller;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -85,6 +86,31 @@ public class UserPrayControllerTest {
 				.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
 	}
 
+	@Test
+	public void findPrayUsers() throws Exception{
+		//Fist pray user
+		Pray pray = this.mockPray("joaogd532@gmail.com");
+		User user = this.mockUserInstance("joaogd53teste2@gmail.com");
+		UserPray userPray = new UserPray();
+		userPray.setAcceptanceDate(new Date());
+		userPray.setId(new UserPrayIdentity(user, pray));
+		userPray.setRate(4);
+		UserPrayDto userPrayDto = new UserPrayDto(userPray);
+		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
+		
+		//Second pray user
+		user = this.mockUserInstance("joaogd53teste3@gmail.com");
+		userPray = new UserPray();
+		userPray.setAcceptanceDate(new Date());
+		userPray.setId(new UserPrayIdentity(user, pray));
+		userPray.setRate(4);
+		userPrayDto = new UserPrayDto(userPray);
+		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
+		mockMvc.perform(buildGetByPrayRequest(pray.getIdPray().toString())).andExpect(status().isOk())
+			.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+			.andExpect(jsonPath("$.value.length()", is(equalTo(2))));
+	}
+	
 	private MockHttpServletRequestBuilder buildPostRequest(UserPrayDto userPray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
 		return post(UserPrayController.PATH)
@@ -135,6 +161,10 @@ public class UserPrayControllerTest {
 
 	private MockHttpServletRequestBuilder buildGetByUserRequest(String id) throws Exception {
 		return get(UserPrayController.PATH + "/user/" + id).header("Authorization","test");
+	}
+
+	private MockHttpServletRequestBuilder buildGetByPrayRequest(String id) throws Exception {
+		return get(UserPrayController.PATH + "/pray/" + id).header("Authorization","test");
 	}
 
 	private String getIdFromLocation(String location) {

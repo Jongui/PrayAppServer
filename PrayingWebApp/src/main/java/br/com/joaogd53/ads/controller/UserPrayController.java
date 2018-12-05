@@ -51,6 +51,13 @@ public class UserPrayController {
 		return prayList;
 	}
 
+	@GetMapping("/pray/{idPray}")
+	public UserPrayList userByPray(@RequestHeader("Authorization")String token, @PathVariable("idPray") Long id) {
+		Pray pray = prayRepository.findById(id).get();
+		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdPray(pray));
+		return prayList;
+	}
+	
 	@PostMapping
 	public UserPrayDto add(@RequestHeader("Authorization")String token, @Valid @RequestBody UserPrayDto userPrayDto) {
 		UserPray userPraySaved;
@@ -69,12 +76,12 @@ public class UserPrayController {
 
 	public static class UserPrayList {
 		@JsonProperty("value")
-		public List<UserPrayDto> users = new ArrayList<>();
+		public List<UserPrayDto> usersPray = new ArrayList<>();
 
 		public UserPrayList(Iterable<UserPray> usersAdd) {
-			usersAdd.forEach((userPray) -> {
-				UserPrayDto userPrayDto = new UserPrayDto(userPray);
-				users.add(userPrayDto);
+			usersAdd.forEach((usersPrayTmp) -> {
+				UserPrayDto userPrayDto = new UserPrayDto(usersPrayTmp);
+				usersPray.add(userPrayDto);
 			});
 		}
 	}

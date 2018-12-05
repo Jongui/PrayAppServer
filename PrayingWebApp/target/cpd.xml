@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pmd-cpd>
-   <duplication lines="43" tokens="117">
-      <file line="25"
+   <duplication lines="51" tokens="140">
+      <file line="27"
             path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/dto/UserDto.java"/>
-      <file line="63"
+      <file line="66"
             path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/User.java"/>
       <codefragment><![CDATA[	}
 
@@ -45,6 +45,14 @@
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 
 	public Long getChurch() {]]></codefragment>

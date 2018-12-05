@@ -21,6 +21,7 @@
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/exceptions/NotFoundException.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/config/WebAppContextConfig.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/AppInitializer.java
+/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/exceptions/EndDateBeforeStartDateException.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/exceptions/EmailNotUniqueException.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/controller/UserController.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/controller/PrayController.java

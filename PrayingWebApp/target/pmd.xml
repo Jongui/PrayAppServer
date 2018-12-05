@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pmd version="5.3.2" timestamp="2018-12-01T17:43:24.196">
+<pmd version="5.3.2" timestamp="2018-12-05T20:23:23.314">
 <file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/UserPray.java">
 <violation beginline="37" endline="37" begincolumn="37" endcolumn="47" rule="UnusedFormalParameter" ruleset="Unused Code" package="br.com.joaogd53.ads.model" class="UserPray" method="UserPray" variable="userPrayDto" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedFormalParameter" priority="3">
 Avoid unused constructor parameters such as 'userPrayDto'.
@@ -30,7 +30,10 @@ Avoid modifiers which are implied by the context
 </violation>
 </file>
 <file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/UserPrayRepositoryCustom.java">
-<violation beginline="9" endline="9" begincolumn="16" endcolumn="54" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserPrayRepositoryCustom" method="findByIdUser" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+<violation beginline="10" endline="10" begincolumn="16" endcolumn="54" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserPrayRepositoryCustom" method="findByIdUser" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
+Avoid modifiers which are implied by the context
+</violation>
+<violation beginline="11" endline="11" begincolumn="16" endcolumn="54" rule="UnusedModifier" ruleset="Unused Code" package="br.com.joaogd53.ads.repository" class="UserPrayRepositoryCustom" method="findByIdPray" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedModifier" priority="3">
 Avoid modifiers which are implied by the context
 </violation>
 </file>
