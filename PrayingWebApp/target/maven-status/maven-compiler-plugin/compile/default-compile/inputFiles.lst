@@ -29,4 +29,5 @@
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/UserPray.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/controller/DefaultController.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/repository/PrayRepository.java
+/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/dto/AvgDto.java
 /home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/exceptions/EmailNotMatchException.java

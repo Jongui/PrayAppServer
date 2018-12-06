@@ -26,6 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -121,7 +122,7 @@ public class UserPrayControllerTest {
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(new Date());
 		calendar.add(GregorianCalendar.DATE, 5);
-		
+
 		UserPray userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
 		userPray.setExitDate(calendar.getTime());
@@ -129,12 +130,42 @@ public class UserPrayControllerTest {
 		userPray.setRate(4);
 		UserPrayDto userPrayDto = new UserPrayDto(userPray);
 		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
-		
+
 		userPray.setRate(5);
 		userPrayDto = new UserPrayDto(userPray);
 		mockMvc.perform(buildPutRequest(userPrayDto)).andExpect(status().isOk())
-			.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-			.andExpect(jsonPath("$.rate", is(equalTo(5))));
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.rate", is(equalTo(5))));
+	}
+
+	@Test
+	public void calcAvgPrayRate() throws Exception {
+		Pray pray = this.mockPray("joaogd535@gmail.com");
+		User user1 = this.mockUserInstance("joaogd53teste5@gmail.com");
+		User user2 = this.mockUserInstance("joaogd53teste6@gmail.com");
+
+		UserPray userPray1 = new UserPray();
+		userPray1.setAcceptanceDate(new Date());
+		userPray1.setExitDate(new Date());
+		userPray1.setId(new UserPrayIdentity(user1, pray));
+		userPray1.setRate(5);
+		mockMvc.perform(buildPostRequest(new UserPrayDto(userPray1))).andExpect(status().isOk());
+
+		UserPray userPray2 = new UserPray();
+		userPray2.setAcceptanceDate(new Date());
+		userPray2.setExitDate(new Date());
+		userPray2.setId(new UserPrayIdentity(user2, pray));
+		userPray2.setRate(3);
+		mockMvc.perform(buildPostRequest(new UserPrayDto(userPray2))).andExpect(status().isOk());
+
+		double avg = (5 + 3) / 2;
+
+		mockMvc.perform(buildAvgRequest(pray.getIdPray())).andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$.avg", is(equalTo(avg))));
+	}
+
+	private RequestBuilder buildAvgRequest(Long idPray) {
+		return get(UserPrayController.PATH + "/avg/" + idPray).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(UserPrayDto userPray) throws Exception {
@@ -143,11 +174,11 @@ public class UserPrayControllerTest {
 				.header("Authorization", "test");
 	}
 
-	private MockHttpServletRequestBuilder buildPutRequest(UserPrayDto userPray) throws Exception{
-		return put(UserPrayController.PATH + "/" + userPray.getUser()).content(toJson(userPray)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization", "test");
+	private MockHttpServletRequestBuilder buildPutRequest(UserPrayDto userPray) throws Exception {
+		return put(UserPrayController.PATH + "/" + userPray.getUser()).content(toJson(userPray))
+				.contentType(APPLICATION_JSON_UTF8).header("Authorization", "test");
 	}
-	
+
 	private MockHttpServletRequestBuilder buildPrayPostRequest(PrayDto pray) throws Exception {
 		// post the advertisement as a JSON entity in the request body
 		return post(PrayController.PATH).content(toJson(pray)).contentType(APPLICATION_JSON_UTF8)

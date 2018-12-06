@@ -20,6 +20,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.dto.AvgDto;
 import br.com.joaogd53.ads.dto.UserPrayDto;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
@@ -57,6 +58,12 @@ public class UserPrayController {
 		Pray pray = prayRepository.findById(id).get();
 		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdPray(pray));
 		return prayList;
+	}
+
+	@GetMapping("/avg/{idPray}")
+	public AvgDto calcPrayAvg(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
+		float avg = userPrayRepository.calculatePrayAvg(id);
+		return new AvgDto(avg);
 	}
 
 	@PostMapping

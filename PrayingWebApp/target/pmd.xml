@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pmd version="5.3.2" timestamp="2018-12-05T20:23:23.314">
+<pmd version="5.3.2" timestamp="2018-12-06T20:35:22.483">
 <file name="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/UserPray.java">
 <violation beginline="37" endline="37" begincolumn="37" endcolumn="47" rule="UnusedFormalParameter" ruleset="Unused Code" package="br.com.joaogd53.ads.model" class="UserPray" method="UserPray" variable="userPrayDto" externalInfoUrl="http://pmd.sourceforge.net/pmd-5.3.2/pmd-java/rules/java/unusedcode.html#UnusedFormalParameter" priority="3">
 Avoid unused constructor parameters such as 'userPrayDto'.

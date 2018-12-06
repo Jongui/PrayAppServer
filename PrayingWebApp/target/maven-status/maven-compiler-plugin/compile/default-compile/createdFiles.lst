@@ -12,6 +12,7 @@ br/com/joaogd53/ads/model/Church.class
 br/com/joaogd53/ads/repository/UserRepository.class
 br/com/joaogd53/ads/config/HibernateConf.class
 br/com/joaogd53/ads/controller/UserPrayController$UserPrayList.class
+br/com/joaogd53/ads/dto/AvgDto.class
 br/com/joaogd53/ads/exceptions/NotFoundException.class
 br/com/joaogd53/ads/AppInitializer.class
 br/com/joaogd53/ads/config/WebAppContextConfig.class
