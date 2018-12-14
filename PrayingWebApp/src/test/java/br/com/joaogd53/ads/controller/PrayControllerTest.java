@@ -37,7 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.joaogd53.ads.config.WebAppContextConfig;
 import br.com.joaogd53.ads.dto.PrayDto;
 import br.com.joaogd53.ads.dto.UserDto;
-import br.com.joaogd53.ads.model.Church;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
 
@@ -47,15 +46,22 @@ import br.com.joaogd53.ads.model.User;
 public class PrayControllerTest {
 
 	private static final String LOCATION = "Location";
+	private static Long counter = new Long(0);
 
 	@Inject
 	private WebApplicationContext context;
 
 	private MockMvc mockMvc;
+	private User user;
 
 	@Before
 	public void setUp() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+		counter++;
+		String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
+		user = this.mockUserInstance(emailAddress);
+
 	}
 
 	@Test
@@ -133,12 +139,6 @@ public class PrayControllerTest {
 				.header("Authorization", "test");
 	}
 
-	private MockHttpServletRequestBuilder buildChurchPostRequest(Church church) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH).content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization", "test");
-	}
-
 	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
 		return get(PrayController.PATH + "/" + id).header("Authorization", "test");
 	}
@@ -149,13 +149,6 @@ public class PrayControllerTest {
 
 	private String toJson(Object object) throws JsonProcessingException {
 		return new ObjectMapper().writeValueAsString(object);
-	}
-
-	private String performChurchPostAndGetId(Church church) throws Exception {
-		MockHttpServletResponse response = mockMvc.perform(buildChurchPostRequest(church))
-				.andExpect(status().isCreated()).andReturn().getResponse();
-
-		return getIdFromLocation(response.getHeader(LOCATION));
 	}
 
 	private String performUserPostAndGetId(User user) throws Exception {
@@ -181,13 +174,12 @@ public class PrayControllerTest {
 		ret.setBeginDate(new Date());
 		ret.setDescription("Primeiro motivo de oração");
 		ret.setEndDate(new Date());
-		ret.setCreator(this.mockUserInstance(email));
+		ret.setCreator(user);
 		return ret;
 	}
 
 	private User mockUserInstance(String email) throws Exception {
 		User user = new User();
-		user.setChurch(this.mockChurchToSave());
 		user.setCity("Curitiba");
 		user.setCountry("Brasil");
 		user.setEmail(email);
@@ -196,16 +188,5 @@ public class PrayControllerTest {
 		String id = this.performUserPostAndGetId(user);
 		user.setIdUser(new Long(id));
 		return user;
-	}
-
-	private Church mockChurchToSave() throws Exception {
-		Church church = new Church();
-		church.setCity("Curitiba");
-		church.setCountry("Brasil");
-		church.setName("Primeira igreja irmãos menonitas do boqueirão");
-		church.setRegion("Paraná");
-		String id = this.performChurchPostAndGetId(church);
-		church.setIdChurch(new Long(id));
-		return church;
 	}
 }

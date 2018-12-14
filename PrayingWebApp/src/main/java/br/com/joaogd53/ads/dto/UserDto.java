@@ -23,7 +23,11 @@ public class UserDto {
 		this.city = user.getCity();
 		this.country = user.getCountry();
 		this.avatarUrl = user.getAvatarUrl();
-		this.church = user.getChurch().getIdChurch();
+		try {
+			this.church = user.getChurch().getIdChurch();
+		} catch (NullPointerException ex) {
+			this.church = null;
+		}
 	}
 
 	public Long getIdUser() {

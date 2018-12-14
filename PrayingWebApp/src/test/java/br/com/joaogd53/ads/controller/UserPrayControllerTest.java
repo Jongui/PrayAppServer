@@ -38,7 +38,6 @@ import br.com.joaogd53.ads.config.WebAppContextConfig;
 import br.com.joaogd53.ads.dto.PrayDto;
 import br.com.joaogd53.ads.dto.UserDto;
 import br.com.joaogd53.ads.dto.UserPrayDto;
-import br.com.joaogd53.ads.model.Church;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
 import br.com.joaogd53.ads.model.UserPray;
@@ -53,17 +52,30 @@ public class UserPrayControllerTest {
 	@Inject
 	private WebApplicationContext context;
 
+	private static Long counter = new Long(0);
+
 	private MockMvc mockMvc;
+	private User user;
+	private User user1;
+	private Pray pray;
 
 	@Before
 	public void setUp() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		counter++;
+		String emailAddress = "joaogd53teste" + counter.toString() + "@gmail.com";
+		user = this.mockUserInstance(emailAddress);
+
+		counter++;
+		emailAddress = "joaogd53teste" + counter.toString() + "@gmail.com";
+		user1 = this.mockUserInstance(emailAddress);
+
+		String prayAddress = "joaogd53" + counter.toString() + "@gmail.com";
+		pray = this.mockPray(prayAddress);
 	}
 
 	@Test
 	public void create() throws Exception {
-		Pray pray = this.mockPray("joaogd53@gmail.com");
-		User user = this.mockUserInstance("joaogd53teste@gmail.com");
 		UserPray userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
 		userPray.setId(new UserPrayIdentity(user, pray));
@@ -76,8 +88,8 @@ public class UserPrayControllerTest {
 
 	@Test
 	public void findByUser() throws Exception {
-		Pray pray = this.mockPray("joaogd531@gmail.com");
-		User user = this.mockUserInstance("joaogd53teste1@gmail.com");
+		// Pray pray = this.mockPray("joaogd531@gmail.com");
+		// User user = this.mockUserInstance("joaogd53teste1@gmail.com");
 		UserPray userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
 		userPray.setId(new UserPrayIdentity(user, pray));
@@ -91,9 +103,8 @@ public class UserPrayControllerTest {
 
 	@Test
 	public void findPrayUsers() throws Exception {
-		// Fist pray user
-		Pray pray = this.mockPray("joaogd532@gmail.com");
-		User user = this.mockUserInstance("joaogd53teste2@gmail.com");
+		// Pray pray = this.mockPray("joaogd532@gmail.com");
+		// User user = this.mockUserInstance("joaogd53teste2@gmail.com");
 		UserPray userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
 		userPray.setId(new UserPrayIdentity(user, pray));
@@ -102,10 +113,9 @@ public class UserPrayControllerTest {
 		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
 
 		// Second pray user
-		user = this.mockUserInstance("joaogd53teste3@gmail.com");
 		userPray = new UserPray();
 		userPray.setAcceptanceDate(new Date());
-		userPray.setId(new UserPrayIdentity(user, pray));
+		userPray.setId(new UserPrayIdentity(user1, pray));
 		userPray.setRate(4);
 		userPrayDto = new UserPrayDto(userPray);
 		mockMvc.perform(buildPostRequest(userPrayDto)).andExpect(status().isOk());
@@ -117,8 +127,8 @@ public class UserPrayControllerTest {
 	@Test
 	public void changeUserPrayStartDate() throws Exception {
 		// Fist pray user
-		Pray pray = this.mockPray("joaogd534@gmail.com");
-		User user = this.mockUserInstance("joaogd53teste4@gmail.com");
+		// Pray pray = this.mockPray("joaogd534@gmail.com");
+		// User user = this.mockUserInstance("joaogd53teste4@gmail.com");
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(new Date());
 		calendar.add(GregorianCalendar.DATE, 5);
@@ -139,23 +149,20 @@ public class UserPrayControllerTest {
 
 	@Test
 	public void calcAvgPrayRate() throws Exception {
-		Pray pray = this.mockPray("joaogd535@gmail.com");
-		User user1 = this.mockUserInstance("joaogd53teste5@gmail.com");
-		User user2 = this.mockUserInstance("joaogd53teste6@gmail.com");
+
+		UserPray userPray = new UserPray();
+		userPray.setAcceptanceDate(new Date());
+		userPray.setExitDate(new Date());
+		userPray.setId(new UserPrayIdentity(user, pray));
+		userPray.setRate(5);
+		mockMvc.perform(buildPostRequest(new UserPrayDto(userPray))).andExpect(status().isOk());
 
 		UserPray userPray1 = new UserPray();
 		userPray1.setAcceptanceDate(new Date());
 		userPray1.setExitDate(new Date());
 		userPray1.setId(new UserPrayIdentity(user1, pray));
-		userPray1.setRate(5);
+		userPray1.setRate(3);
 		mockMvc.perform(buildPostRequest(new UserPrayDto(userPray1))).andExpect(status().isOk());
-
-		UserPray userPray2 = new UserPray();
-		userPray2.setAcceptanceDate(new Date());
-		userPray2.setExitDate(new Date());
-		userPray2.setId(new UserPrayIdentity(user2, pray));
-		userPray2.setRate(3);
-		mockMvc.perform(buildPostRequest(new UserPrayDto(userPray2))).andExpect(status().isOk());
 
 		double avg = (5 + 3) / 2;
 
@@ -190,12 +197,6 @@ public class UserPrayControllerTest {
 				.header("Authorization", "test");
 	}
 
-	private MockHttpServletRequestBuilder buildChurchPostRequest(Church church) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH).content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization", "test");
-	}
-
 	private String performPrayPostAndGetId(Pray pray) throws Exception {
 		MockHttpServletResponse response = mockMvc.perform(buildPrayPostRequest(new PrayDto(pray)))
 				.andExpect(status().isCreated()).andReturn().getResponse();
@@ -205,13 +206,6 @@ public class UserPrayControllerTest {
 
 	private String performUserPostAndGetId(User user) throws Exception {
 		MockHttpServletResponse response = mockMvc.perform(buildUserPostRequest(new UserDto(user)))
-				.andExpect(status().isCreated()).andReturn().getResponse();
-
-		return getIdFromLocation(response.getHeader(LOCATION));
-	}
-
-	private String performChurchPostAndGetId(Church church) throws Exception {
-		MockHttpServletResponse response = mockMvc.perform(buildChurchPostRequest(church))
 				.andExpect(status().isCreated()).andReturn().getResponse();
 
 		return getIdFromLocation(response.getHeader(LOCATION));
@@ -242,7 +236,7 @@ public class UserPrayControllerTest {
 
 	private User mockUserInstance(String email) throws Exception {
 		User user = new User();
-		user.setChurch(this.mockChurchToSave());
+		// user.setChurch(this.mockChurchToSave());
 		user.setCity("Curitiba");
 		user.setCountry("Brasil");
 		user.setEmail(email);
@@ -251,17 +245,6 @@ public class UserPrayControllerTest {
 		String id = this.performUserPostAndGetId(user);
 		user.setIdUser(new Long(id));
 		return user;
-	}
-
-	private Church mockChurchToSave() throws Exception {
-		Church church = new Church();
-		church.setCity("Curitiba");
-		church.setCountry("Brasil");
-		church.setName("Primeira igreja irmãos menonitas do boqueirão");
-		church.setRegion("Paraná");
-		String id = this.performChurchPostAndGetId(church);
-		church.setIdChurch(new Long(id));
-		return church;
 	}
 
 	private String toJson(Object object) throws JsonProcessingException {

@@ -5,11 +5,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.com.joaogd53.ads.dto.UserDto;
 import br.com.joaogd53.ads.exceptions.BadRequestException;
+import br.com.joaogd53.ads.exceptions.ChurchNotFoundException;
 import br.com.joaogd53.ads.exceptions.EmailNotMatchException;
 import br.com.joaogd53.ads.exceptions.EmailNotUniqueException;
 import br.com.joaogd53.ads.exceptions.NotFoundException;
@@ -83,9 +86,18 @@ public class UserController {
 	public ResponseEntity<UserDto> add(@Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
 			throws URISyntaxException {
 		this.throwIfEmailNotUnique(userDto);
-		Church church = churchRepository.findById(userDto.getChurch()).get();
-		User user = new User(userDto, church);
-		User userSaved = userRepository.save(user);
+		this.throwIfChurchNofFound(userDto);
+		User user;
+		User userSaved;
+		try {
+			Church church = churchRepository.findById(userDto.getChurch()).get();
+			user = new User(userDto, church);
+			userSaved = userRepository.save(user);
+		} catch (InvalidDataAccessApiUsageException ex) {
+			user = new User(userDto);
+			userSaved = userRepository.save(user);
+		}
+
 		UriComponents uriComponents = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(userSaved.getIdUser());
 		return ResponseEntity.created(new URI(uriComponents.getPath())).body(new UserDto(user));
 	}
@@ -95,14 +107,35 @@ public class UserController {
 		throwIfInconsistent(id, userDto.getIdUser());
 		throwIfNoExisting(id);
 		throwIfEmailNotMatch(userDto);
-		Church church = churchRepository.findById(userDto.getChurch()).get();
-		User userSaved = this.userRepository.save(new User(userDto, church));
+		this.throwIfChurchNofFound(userDto);
+		User user;
+		User userSaved;
+		try {
+			Church church = churchRepository.findById(userDto.getChurch()).get();
+			userSaved = this.userRepository.save(new User(userDto, church));
+		} catch (InvalidDataAccessApiUsageException ex) {
+			user = new User(userDto);
+			userSaved = userRepository.save(user);
+		}
 		return new UserDto(userSaved);
+	}
+
+	private void throwIfChurchNofFound(@Valid UserDto userDto) {
+		try {
+			@SuppressWarnings("unused")
+			Church church = churchRepository.findById(userDto.getChurch()).get();
+		} catch (NoSuchElementException ex) {
+			throw new ChurchNotFoundException("Church not found");
+		} catch (InvalidDataAccessApiUsageException ex) {
+			System.out.println("Chuch null, nothing to do");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	private void throwIfEmailNotMatch(UserDto userDto) {
 		User user = userRepository.findById(userDto.getIdUser()).get();
-		if(!user.getEmail().equalsIgnoreCase(userDto.getEmail()))
+		if (!user.getEmail().equalsIgnoreCase(userDto.getEmail()))
 			throw new EmailNotMatchException("Email not match");
 	}
 

@@ -42,7 +42,7 @@ public class User {
 	private String city;
 	@Column(name = "country")
 	private String country;
-	@Column(name ="avatarUrl")
+	@Column(name = "avatarUrl")
 	private String avatarUrl;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "church")
@@ -53,6 +53,15 @@ public class User {
 
 	public User() {
 
+	}
+
+	public User(UserDto userDto) {
+		this.idUser = userDto.getIdUser();
+		this.email = userDto.getEmail();
+		this.userName = userDto.getUserName();
+		this.city = userDto.getCity();
+		this.country = userDto.getCountry();
+		this.avatarUrl = userDto.getAvatarUrl();
 	}
 
 	public User(UserDto userDto, Church church) {

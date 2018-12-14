@@ -16,6 +16,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import javax.inject.Inject;
 
 import org.junit.Before;
@@ -34,7 +37,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.joaogd53.ads.config.WebAppContextConfig;
+import br.com.joaogd53.ads.dto.ChurchDto;
+import br.com.joaogd53.ads.dto.UserDto;
 import br.com.joaogd53.ads.model.Church;
+import br.com.joaogd53.ads.model.User;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { WebAppContextConfig.class })
@@ -45,11 +51,21 @@ public class ChurchControllerTest {
 	@Inject
 	private WebApplicationContext context;
 
+	private static Long counter = new Long(0);
+
 	private MockMvc mockMvc;
+	private User user;
+	private User changer;
 
 	@Before
 	public void setUp() throws Exception {
+		counter++;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
+		user = this.mockUserInstance(emailAddress);
+
+		String emailAddressChanger = "joaogd53test" + counter.toString() + "@gmail.com";
+		changer = this.mockUserInstance(emailAddressChanger);
 	}
 
 	@Test
@@ -59,6 +75,8 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
 
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isCreated())
 				.andExpect(header().string(LOCATION, is(not(""))))
@@ -74,6 +92,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -84,6 +105,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName(null);
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -94,6 +118,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -104,6 +131,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -114,6 +144,9 @@ public class ChurchControllerTest {
 		church.setCountry("");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -124,6 +157,9 @@ public class ChurchControllerTest {
 		church.setCountry(null);
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -134,6 +170,9 @@ public class ChurchControllerTest {
 		church.setCountry("");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -144,6 +183,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion(null);
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		mockMvc.perform(buildPostRequest(church)).andExpect(status().isBadRequest());
 	}
 
@@ -174,10 +216,8 @@ public class ChurchControllerTest {
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 
-		mockMvc.perform(buildGetRequest(id))
-					.andExpect(status().isOk())
-					.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-					.andExpect(jsonPath("$.city", is("Curitiba")));
+		mockMvc.perform(buildGetRequest(id)).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.city", is("Curitiba")));
 	}
 
 	@Test
@@ -212,54 +252,93 @@ public class ChurchControllerTest {
 
 	@Test
 	public void updateChurchById() throws Exception {
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCity("Palmeira");
-		mockMvc.perform(buildPutRequest(id, church))
-        	.andExpect(status().isOk())
-        	.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-        	.andExpect(jsonPath("$.city", is("Palmeira")));
+		church.setChagedAt(changed);
+		church.setChangedBy(user);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isOk())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.city", is("Palmeira")));
 	}
-	
+
 	@Test
 	public void updateChurchInvalidCity() throws Exception {
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCity("");
-		mockMvc.perform(buildPutRequest(id, church))
-        	.andExpect(status().isBadRequest());
+		church.setChagedAt(changed);
+		church.setChangedBy(user);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void updateChurchInvalidConutry() throws Exception {
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCountry("");
-		mockMvc.perform(buildPutRequest(id, church))
-        	.andExpect(status().isBadRequest());
+		church.setChagedAt(changed);
+		church.setChangedBy(user);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
-	
+
 	@Test
 	public void updateChurchInvalidName() throws Exception {
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setName("");
-		mockMvc.perform(buildPutRequest(id, church))
-        	.andExpect(status().isBadRequest());
+		church.setChagedAt(changed);
+		church.setChangedBy(user);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
-	
+
 	@Test
 	public void updateChurchInvalidRegion() throws Exception {
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
 		Church church = this.mockChurchToSave();
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setRegion("");
-		mockMvc.perform(buildPutRequest(id, church))
-        	.andExpect(status().isBadRequest());
+		church.setChagedAt(changed);
+		church.setChangedBy(user);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void updateChurchInvalidUser() throws Exception {
+		Church church = this.mockChurchToSave();
+		String id = performPostAndGetId(church);
+		church.setIdChurch(Long.valueOf(id));
+
+		Date changed = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(changed);
+		calendar.add(GregorianCalendar.DATE, +2);
+		church.setChagedAt(changed);
+		church.setChangedBy(changer);
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
 
 	private MockHttpServletRequestBuilder buildDeleteRequest(String id) throws Exception {
@@ -267,26 +346,25 @@ public class ChurchControllerTest {
 	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(Church church) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH).content(toJson(church))
-				.contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		ChurchDto churchDto = new ChurchDto(church);
+		return post(ChurchController.PATH).content(toJson(churchDto)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
-		return get(ChurchController.PATH + "/" + id).header("Authorization","test");
+		return get(ChurchController.PATH + "/" + id).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequestByCity(String city) throws Exception {
-		return get(ChurchController.PATH + "/city/" + city).header("Authorization","test");
+		return get(ChurchController.PATH + "/city/" + city).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequestByCountry(String country) throws Exception {
-		return get(ChurchController.PATH + "/country/" + country).header("Authorization","test");
+		return get(ChurchController.PATH + "/country/" + country).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequestByRegion(String region) throws Exception {
-		return get(ChurchController.PATH + "/region/" + region).header("Authorization","test");
+		return get(ChurchController.PATH + "/region/" + region).header("Authorization", "test");
 	}
 
 	private String toJson(Object object) throws JsonProcessingException {
@@ -294,16 +372,28 @@ public class ChurchControllerTest {
 	}
 
 	private String performPostAndGetId(Church church) throws Exception {
-		MockHttpServletResponse response = mockMvc.perform(buildPostRequest(church))
-				.andExpect(status().isCreated()).andReturn().getResponse();
+		MockHttpServletResponse response = mockMvc.perform(buildPostRequest(church)).andExpect(status().isCreated())
+				.andReturn().getResponse();
 
 		return getIdFromLocation(response.getHeader(LOCATION));
 	}
 
 	private MockHttpServletRequestBuilder buildPutRequest(String id, Church church) throws Exception {
-		return put(ChurchController.PATH + "/" + id)
-				.content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		ChurchDto churchDto = new ChurchDto(church);
+		return put(ChurchController.PATH + "/" + id).content(toJson(churchDto)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
+	}
+
+	private String performUserPostAndGetId(User user) throws Exception {
+		MockHttpServletResponse response = mockMvc.perform(buildUserPostRequest(new UserDto(user)))
+				.andExpect(status().isCreated()).andReturn().getResponse();
+
+		return getIdFromLocation(response.getHeader(LOCATION));
+	}
+
+	private MockHttpServletRequestBuilder buildUserPostRequest(UserDto user) throws Exception {
+		return post(UserController.PATH).content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private String getIdFromLocation(String location) {
@@ -316,6 +406,9 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		return church;
 	}
 
@@ -325,6 +418,22 @@ public class ChurchControllerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedBy(user);
+		church.setCreatedAt(new Date());
+
 		return church;
+	}
+
+	private User mockUserInstance(String email) throws Exception {
+		User user = new User();
+		// user.setChurch(this.mockChurchToSave());
+		user.setCity("Curitiba");
+		user.setCountry("Brasil");
+		user.setEmail(email);
+		user.setUserName("Jongui");
+		user.setAvatarUrl("AvatarUrl");
+		String id = this.performUserPostAndGetId(user);
+		user.setIdUser(new Long(id));
+		return user;
 	}
 }

@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Date;
+
 import javax.inject.Inject;
 
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -32,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.joaogd53.ads.config.WebAppContextConfig;
+import br.com.joaogd53.ads.dto.ChurchDto;
 import br.com.joaogd53.ads.dto.UserDto;
 import br.com.joaogd53.ads.model.Church;
 import br.com.joaogd53.ads.model.User;
@@ -45,18 +49,22 @@ public class UserContollerTest {
 	@Inject
 	private WebApplicationContext context;
 
+	private static Long counter = new Long(0);
+
 	private MockMvc mockMvc;
+	private User user;
 
 	@Before
 	public void setUp() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		counter++;
+		String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
+		user = this.mockUserInstance(emailAddress);
+
 	}
 
 	@Test
 	public void create() throws Exception {
-		// mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
-		User user = mockUserInstance("joaogd53@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isCreated())
 				.andExpect(header().string(LOCATION, is(not(""))))
 				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
@@ -65,28 +73,19 @@ public class UserContollerTest {
 
 	@Test
 	public void createDuplicateEmail() throws Exception {
-		// mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
-		User user = mockUserInstance("joaogd53teste@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isCreated());
 		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createWithWrongChurch() throws Exception {
-		User user = this.mockUserInstance("joaogd53teste4@gmail.com");
-		Church church = user.getChurch();
-		church.setIdChurch(new Long(999));
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
-		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isBadRequest());
+		UserDto userDto = new UserDto(user);
+		userDto.setChurch(new Long(99));
+		mockMvc.perform(buildPostRequest(userDto)).andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void readAll() throws Exception {
-		// mockMvc.perform(buildDeleteRequest("")).andExpect(status().isNoContent());
-		User user = this.mockUserInstance("joaogd53teste1@gmail.com");
-
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isCreated());
 
 		mockMvc.perform(buildGetRequest("")).andExpect(status().isOk())
@@ -96,9 +95,11 @@ public class UserContollerTest {
 
 	@Test
 	public void searchByChurch() throws Exception {
-		User user = this.mockUserInstance("joaogd53teste3@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
-		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isCreated());
+		String id = performPostAndGetId(user);
+		user.setIdUser(new Long(id));
+		Church church = this.mockChurchToSave();
+		user.setChurch(church);
+		mockMvc.perform(buildPutRequest(new UserDto(user))).andExpect(status().isOk());
 		mockMvc.perform(buildGetRequestByChurch(user.getChurch())).andExpect(status().isOk())
 				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
@@ -106,16 +107,12 @@ public class UserContollerTest {
 
 	@Test
 	public void searchByEmail() throws Exception {
-		User user = this.mockUserInstance("joaogd53teste2@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		mockMvc.perform(buildPostRequest(new UserDto(user))).andExpect(status().isCreated());
 		mockMvc.perform(buildGetRequestByEmail(user.getEmail())).andExpect(status().isOk());
 	}
 
 	@Test
 	public void searchById() throws Exception {
-		User user = this.mockUserInstance("joaogd53teste5@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		String id = performPostAndGetId(user);
 		mockMvc.perform(buildGetRequest(id)).andExpect(status().isOk());
 	}
@@ -127,48 +124,44 @@ public class UserContollerTest {
 
 	@Test
 	public void updateUser() throws Exception {
-		User user = this.mockUserInstance("joaogd53teste6@gmail.com");
-		mockMvc.perform(buildChurchPostRequest(user.getChurch())).andExpect(status().isCreated());
 		String id = performPostAndGetId(user);
 		user.setIdUser(new Long(id));
 		String newName = "New User Name";
 		user.setUserName(newName);
 		mockMvc.perform(buildPutRequest(new UserDto(user))).andExpect(status().isOk())
-				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
-				.andExpect(jsonPath("$.userName", is(newName)));
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.userName", is(newName)));
 	}
 
-	private MockHttpServletRequestBuilder buildChurchPostRequest(Church church) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(ChurchController.PATH)
-				.content(toJson(church)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+	@Test
+	public void updateWithWrongChurch() throws Exception {
+		String id = performPostAndGetId(user);
+		user.setIdUser(new Long(id));
+		UserDto userDto = new UserDto(user);
+		userDto.setChurch(new Long(99));
+		mockMvc.perform(buildPutRequest(userDto)).andExpect(status().isBadRequest());
 	}
 
 	private MockHttpServletRequestBuilder buildPutRequest(UserDto user) throws Exception {
-		return put(UserController.PATH + "/" + user.getIdUser())
-				.content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return put(UserController.PATH + "/" + user.getIdUser()).content(toJson(user))
+				.contentType(APPLICATION_JSON_UTF8).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(UserDto user) throws Exception {
-		// post the advertisement as a JSON entity in the request body
-		return post(UserController.PATH)
-				.content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
-				.header("Authorization","test");
+		return post(UserController.PATH).content(toJson(user)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequestByEmail(String email) throws Exception {
-		return get(UserController.PATH + "/email/" + email + "/").header("Authorization","test");
+		return get(UserController.PATH + "/email/" + email + "/").header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
-		return get(UserController.PATH + "/" + id).header("Authorization","test");
+		return get(UserController.PATH + "/" + id).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildGetRequestByChurch(Church church) {
 		String idChurch = church.getIdChurch().toString();
-		return get(UserController.PATH + "/church/" + idChurch).header("Authorization","test");
+		return get(UserController.PATH + "/church/" + idChurch).header("Authorization", "test");
 	}
 
 	private String toJson(Object object) throws JsonProcessingException {
@@ -180,6 +173,12 @@ public class UserContollerTest {
 				.andExpect(status().isCreated()).andReturn().getResponse();
 
 		return getIdFromLocation(response.getHeader(LOCATION));
+	}
+
+	private RequestBuilder buildChurchPostRequest(Church church) throws Exception {
+		ChurchDto churchDto = new ChurchDto(church);
+		return post(ChurchController.PATH).content(toJson(churchDto)).contentType(APPLICATION_JSON_UTF8)
+				.header("Authorization", "test");
 	}
 
 	private String performChurchPostAndGetId(Church church) throws Exception {
@@ -195,7 +194,6 @@ public class UserContollerTest {
 
 	private User mockUserInstance(String email) throws Exception {
 		User user = new User();
-		user.setChurch(this.mockChurchToSave());
 		user.setCity("Curitiba");
 		user.setCountry("Brasil");
 		user.setEmail(email);
@@ -211,6 +209,8 @@ public class UserContollerTest {
 		church.setCountry("Brasil");
 		church.setName("Primeira igreja irmãos menonitas do boqueirão");
 		church.setRegion("Paraná");
+		church.setCreatedAt(new Date());
+		church.setCreatedBy(user);
 		String id = this.performChurchPostAndGetId(church);
 		church.setIdChurch(new Long(id));
 		return church;

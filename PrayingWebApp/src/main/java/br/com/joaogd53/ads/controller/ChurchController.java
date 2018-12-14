@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,10 +32,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.dto.ChurchDto;
 import br.com.joaogd53.ads.exceptions.BadRequestException;
+import br.com.joaogd53.ads.exceptions.InvalidUserChangingChurchException;
 import br.com.joaogd53.ads.exceptions.NotFoundException;
 import br.com.joaogd53.ads.model.Church;
+import br.com.joaogd53.ads.model.User;
 import br.com.joaogd53.ads.repository.ChurchRepository;
+import br.com.joaogd53.ads.repository.UserRepository;
 
 @RestController
 @RequestMapping(path = ChurchController.PATH)
@@ -42,9 +47,11 @@ import br.com.joaogd53.ads.repository.ChurchRepository;
 @Validated
 public class ChurchController {
 	public static final String PATH = "/api/v1/church";
-	
+
 	@Autowired
 	private ChurchRepository repo;
+	@Autowired
+	private UserRepository userRepository;
 
 	@Inject
 	public ChurchController(ChurchRepository repository) {
@@ -58,7 +65,7 @@ public class ChurchController {
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public Church churchById(@RequestHeader("Authorization")String token, @PathVariable("id") Long id) {
+	public Church churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
 		throwIfNoExisting(id);
 		System.out.println(token);
 		Optional<Church> church = this.repo.findById(id);
@@ -66,17 +73,19 @@ public class ChurchController {
 	}
 
 	@GetMapping("/city/{city}")
-	public ChurchList churchesForCity(@RequestHeader("Authorization")String token, @PathVariable("city") String city) {
+	public ChurchList churchesForCity(@RequestHeader("Authorization") String token, @PathVariable("city") String city) {
 		return new ChurchList((Collection<Church>) this.repo.findByCity(city));
 	}
 
 	@GetMapping("/country/{country}")
-	public ChurchList churchesForCountry(@RequestHeader("Authorization")String token, @PathVariable("country") String country) {
+	public ChurchList churchesForCountry(@RequestHeader("Authorization") String token,
+			@PathVariable("country") String country) {
 		return new ChurchList((Collection<Church>) this.repo.findByCountry(country));
 	}
 
 	@GetMapping("/region/{region}")
-	public ChurchList churchesForRegion(@RequestHeader("Authorization")String token, @PathVariable("region") String region) {
+	public ChurchList churchesForRegion(@RequestHeader("Authorization") String token,
+			@PathVariable("region") String region) {
 		return new ChurchList((Collection<Church>) this.repo.findByRegion(region));
 	}
 
@@ -85,9 +94,19 @@ public class ChurchController {
 	 *              method argument depending on the content type.
 	 */
 	@PostMapping
-	public ResponseEntity<Church> add(@RequestHeader("Authorization")String token, @Valid @RequestBody Church church, UriComponentsBuilder uriComponentsBuilder)
+	public ResponseEntity<Church> add(@RequestHeader("Authorization") String token,
+			@Valid @RequestBody ChurchDto churchDto, UriComponentsBuilder uriComponentsBuilder)
 			throws URISyntaxException {
-		this.throwIfChurchNotValid(church);
+		this.throwIfChurchNotValid(churchDto);
+		User changedBy = new User();
+		User createdBy = userRepository.findById(churchDto.getCreatedBy()).get();
+		Church church;
+		try {
+			changedBy = userRepository.findById(churchDto.getChangedBy()).get();
+			church = new Church(churchDto, createdBy, changedBy);
+		} catch (InvalidDataAccessApiUsageException ex) {
+			church = new Church(churchDto, createdBy, null);
+		}
 
 		Church savedChurch = repo.save(church);
 
@@ -104,20 +123,34 @@ public class ChurchController {
 
 	@DeleteMapping("{id}")
 	@ResponseStatus(NO_CONTENT)
-	public void deleteById(@RequestHeader("Authorization")String token, @PathVariable("id") Long id) {
+	public void deleteById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
 		throwIfNoExisting(id);
 		repo.deleteById(id);
 	}
 
 	@PutMapping("/{id}")
-	public Church update(@RequestHeader("Authorization")String token, @PathVariable("id") long id, @RequestBody Church church) {
-		throwIfInconsistent(id, church.getIdChurch());
+	public Church update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
+			@RequestBody ChurchDto churchDto) {
+		throwIfInconsistent(id, churchDto.getIdChurch());
 		throwIfNoExisting(id);
-		throwIfChurchNotValid(church);
+		throwIfChurchNotValid(churchDto);
+		throwIfInvalideUser(churchDto);
+		Church church = repo.findById(churchDto.getIdChurch()).get();
+		church.setCity(churchDto.getCity());
+		church.setCountry(churchDto.getCountry());
+		church.setCreatedAt(churchDto.getCreatedAt());
+		church.setCreatedBy(userRepository.findById(churchDto.getCreatedBy()).get());
+		church.setName(churchDto.getName());
+		church.setRegion(churchDto.getRegion());
 		return this.repo.save(church);
 	}
 
-	private void throwIfChurchNotValid(final Church church) {
+	private void throwIfInvalideUser(ChurchDto churchDto) {
+		if (churchDto.getCreatedBy() != churchDto.getChangedBy())
+			throw new InvalidUserChangingChurchException("Only user who created church can change it");
+	}
+
+	private void throwIfChurchNotValid(final ChurchDto church) {
 		try {
 			if (church.getName().equals(""))
 				throw new BadRequestException("Name cannot be empty");
