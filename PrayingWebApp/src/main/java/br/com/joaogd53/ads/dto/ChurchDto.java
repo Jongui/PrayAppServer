@@ -2,6 +2,9 @@ package br.com.joaogd53.ads.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import br.com.joaogd53.ads.model.Church;
 
 public class ChurchDto {
@@ -13,7 +16,9 @@ public class ChurchDto {
 	private String country;
 	private Long createdBy;
 	private Date createdAt;
+	@JsonInclude(Include.NON_NULL)
 	private Long changedBy;
+	@JsonInclude(Include.NON_NULL)
 	private Date chagedAt;
 
 	public ChurchDto() {

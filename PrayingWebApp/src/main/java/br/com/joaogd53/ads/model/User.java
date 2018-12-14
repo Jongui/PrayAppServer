@@ -47,7 +47,7 @@ public class User {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "church")
 	private Church church;
-	@OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL, orphanRemoval = false)
 	@JsonIgnore
 	private List<UserPray> userPray = new ArrayList<>();
 

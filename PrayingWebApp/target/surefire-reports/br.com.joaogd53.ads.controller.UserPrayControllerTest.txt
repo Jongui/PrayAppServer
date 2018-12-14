@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: br.com.joaogd53.ads.controller.UserPrayControllerTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.433 sec - in br.com.joaogd53.ads.controller.UserPrayControllerTest

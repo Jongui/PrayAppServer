@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: br.com.joaogd53.ads.controller.UserContollerTest
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.264 sec <<< FAILURE! - in br.com.joaogd53.ads.controller.UserContollerTest
+searchByChurch(br.com.joaogd53.ads.controller.UserContollerTest)  Time elapsed: 0.022 sec  <<< ERROR!
+java.lang.NullPointerException: null
+	at br.com.joaogd53.ads.controller.UserContollerTest.getIdFromLocation(UserContollerTest.java:193)
+	at br.com.joaogd53.ads.controller.UserContollerTest.performPostAndGetId(UserContollerTest.java:176)
+	at br.com.joaogd53.ads.controller.UserContollerTest.searchByChurch(UserContollerTest.java:98)
+
+updateWithWrongChurch(br.com.joaogd53.ads.controller.UserContollerTest)  Time elapsed: 0.016 sec  <<< ERROR!
+java.lang.NullPointerException: null
+	at br.com.joaogd53.ads.controller.UserContollerTest.getIdFromLocation(UserContollerTest.java:193)
+	at br.com.joaogd53.ads.controller.UserContollerTest.performPostAndGetId(UserContollerTest.java:176)
+	at br.com.joaogd53.ads.controller.UserContollerTest.updateWithWrongChurch(UserContollerTest.java:137)
+

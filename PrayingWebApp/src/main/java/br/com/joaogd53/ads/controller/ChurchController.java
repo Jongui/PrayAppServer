@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -65,11 +64,11 @@ public class ChurchController {
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public Church churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
+	public ChurchDto churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
 		throwIfNoExisting(id);
 		System.out.println(token);
-		Optional<Church> church = this.repo.findById(id);
-		return church.get();
+		Church church = this.repo.findById(id).get();
+		return new ChurchDto(church);
 	}
 
 	@GetMapping("/city/{city}")
@@ -94,7 +93,7 @@ public class ChurchController {
 	 *              method argument depending on the content type.
 	 */
 	@PostMapping
-	public ResponseEntity<Church> add(@RequestHeader("Authorization") String token,
+	public ResponseEntity<ChurchDto> add(@RequestHeader("Authorization") String token,
 			@Valid @RequestBody ChurchDto churchDto, UriComponentsBuilder uriComponentsBuilder)
 			throws URISyntaxException {
 		this.throwIfChurchNotValid(churchDto);
@@ -112,7 +111,7 @@ public class ChurchController {
 
 		UriComponents uriComponents = uriComponentsBuilder.path(PATH + "/{id}")
 				.buildAndExpand(savedChurch.getIdChurch());
-		return ResponseEntity.created(new URI(uriComponents.getPath())).body(church);
+		return ResponseEntity.created(new URI(uriComponents.getPath())).body(new ChurchDto(church));
 	}
 
 	@DeleteMapping
@@ -182,10 +181,12 @@ public class ChurchController {
 
 	public static class ChurchList {
 		@JsonProperty("value")
-		public List<Church> churchs = new ArrayList<Church>();
+		public List<ChurchDto> churchs = new ArrayList<ChurchDto>();
 
 		public ChurchList(Iterable<Church> chuchesAdd) {
-			chuchesAdd.forEach(churchs::add);
+			chuchesAdd.forEach((church) -> {
+				churchs.add(new ChurchDto(church));
+			});
 		}
 	}
 }

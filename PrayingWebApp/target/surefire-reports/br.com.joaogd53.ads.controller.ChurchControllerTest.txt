@@ -1,0 +1,104 @@
+-------------------------------------------------------------------------------
+Test set: br.com.joaogd53.ads.controller.ChurchControllerTest
+-------------------------------------------------------------------------------
+Tests run: 22, Failures: 10, Errors: 0, Skipped: 0, Time elapsed: 0.796 sec <<< FAILURE! - in br.com.joaogd53.ads.controller.ChurchControllerTest
+create(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.014 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+updateChurchInvalidConutry(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.012 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+createNullCity(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.013 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+createNullName(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.012 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+createNullCountry(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.013 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+readById(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.012 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+readByIdNegative(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.013 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+searchByRegion(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.011 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+createNullRegion(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.01 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
+searchByCity(br.com.joaogd53.ads.controller.ChurchControllerTest)  Time elapsed: 0.013 sec  <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<400>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:55)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:82)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:619)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:178)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.performUserPostAndGetId(ChurchControllerTest.java:389)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.mockUserInstance(ChurchControllerTest.java:435)
+	at br.com.joaogd53.ads.controller.ChurchControllerTest.setUp(ChurchControllerTest.java:65)
+
