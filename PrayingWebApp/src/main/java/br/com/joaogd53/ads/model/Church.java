@@ -49,7 +49,7 @@ public class Church {
 	@JoinColumn(name = "changedBy")
 	private User changedBy;
 	@Column(name = "changedAt")
-	private Date chagedAt;
+	private Date changedAt;
 
 	public Church() {
 
@@ -65,7 +65,7 @@ public class Church {
 		this.createdAt = churchDto.getCreatedAt();
 		try {
 			this.changedBy = changedBy;
-			this.chagedAt = churchDto.getChagedAt();
+			this.changedAt = churchDto.getChangedAt();
 		} catch (NullPointerException ex) {
 
 		}
@@ -135,12 +135,12 @@ public class Church {
 		this.changedBy = changedBy;
 	}
 
-	public Date getChagedAt() {
-		return chagedAt;
+	public Date getChangedAt() {
+		return changedAt;
 	}
 
-	public void setChagedAt(Date chagedAt) {
-		this.chagedAt = chagedAt;
+	public void setChangedAt(Date chagedAt) {
+		this.changedAt = chagedAt;
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class ChurchDto {
 	@JsonInclude(Include.NON_NULL)
 	private Long changedBy;
 	@JsonInclude(Include.NON_NULL)
-	private Date chagedAt;
+	private Date changedAt;
 
 	public ChurchDto() {
 
@@ -35,7 +35,7 @@ public class ChurchDto {
 		this.createdAt = church.getCreatedAt();
 		try {
 			this.changedBy = church.getChangedBy().getIdUser();
-			this.chagedAt = church.getChagedAt();
+			this.changedAt = church.getChangedAt();
 		} catch (NullPointerException ex) {
 
 		}
@@ -105,12 +105,12 @@ public class ChurchDto {
 		this.changedBy = changedBy;
 	}
 
-	public Date getChagedAt() {
-		return chagedAt;
+	public Date getChangedAt() {
+		return changedAt;
 	}
 
-	public void setChagedAt(Date chagedAt) {
-		this.chagedAt = chagedAt;
+	public void setChangedAt(Date chagedAt) {
+		this.changedAt = chagedAt;
 	}
 
 }

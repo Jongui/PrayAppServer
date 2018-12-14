@@ -128,7 +128,7 @@ public class ChurchController {
 	}
 
 	@PutMapping("/{id}")
-	public Church update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
+	public ChurchDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
 			@RequestBody ChurchDto churchDto) {
 		throwIfInconsistent(id, churchDto.getIdChurch());
 		throwIfNoExisting(id);
@@ -141,7 +141,9 @@ public class ChurchController {
 		church.setCreatedBy(userRepository.findById(churchDto.getCreatedBy()).get());
 		church.setName(churchDto.getName());
 		church.setRegion(churchDto.getRegion());
-		return this.repo.save(church);
+		church.setChangedAt(churchDto.getChangedAt());
+		church.setChangedBy(userRepository.findById(churchDto.getChangedBy()).get());
+		return new ChurchDto(this.repo.save(church));
 	}
 
 	private void throwIfInvalideUser(ChurchDto churchDto) {

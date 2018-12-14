@@ -260,10 +260,11 @@ public class ChurchControllerTest {
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCity("Palmeira");
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(user);
+		int userId = Integer.valueOf(user.getIdUser().toString());
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isOk())
-				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.city", is("Palmeira")));
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8)).andExpect(jsonPath("$.changedBy", is(userId)));
 	}
 
 	@Test
@@ -276,7 +277,7 @@ public class ChurchControllerTest {
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCity("");
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(user);
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
@@ -291,7 +292,7 @@ public class ChurchControllerTest {
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setCountry("");
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(user);
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
@@ -306,7 +307,7 @@ public class ChurchControllerTest {
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setName("");
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(user);
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
@@ -321,7 +322,7 @@ public class ChurchControllerTest {
 		String id = performPostAndGetId(church);
 		church.setIdChurch(Long.valueOf(id));
 		church.setRegion("");
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(user);
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
@@ -336,7 +337,7 @@ public class ChurchControllerTest {
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTime(changed);
 		calendar.add(GregorianCalendar.DATE, +2);
-		church.setChagedAt(changed);
+		church.setChangedAt(changed);
 		church.setChangedBy(changer);
 		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
 	}
