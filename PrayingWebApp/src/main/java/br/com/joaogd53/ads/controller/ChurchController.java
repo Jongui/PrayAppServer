@@ -116,7 +116,7 @@ public class ChurchController {
 
 	@DeleteMapping
 	@ResponseStatus(NO_CONTENT)
-	public void deleteAll() {
+	public void deleteAll(@RequestHeader("Authorization") String token) {
 		repo.deleteAll();
 	}
 

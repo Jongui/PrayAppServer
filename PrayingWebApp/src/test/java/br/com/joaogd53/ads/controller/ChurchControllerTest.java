@@ -343,7 +343,7 @@ public class ChurchControllerTest {
 	}
 
 	private MockHttpServletRequestBuilder buildDeleteRequest(String id) throws Exception {
-		return delete(ChurchController.PATH + "/" + id);
+		return delete(ChurchController.PATH + "/" + id).header("Authorization", "test");
 	}
 
 	private MockHttpServletRequestBuilder buildPostRequest(Church church) throws Exception {

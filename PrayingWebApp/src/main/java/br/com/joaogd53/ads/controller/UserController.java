@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
@@ -63,27 +64,27 @@ public class UserController {
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public UserDto userById(@PathVariable("id") Long id) {
+	public UserDto userById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
 		throwIfNoExisting(id);
 		User user = this.userRepository.findById(id).get();
 		return new UserDto(user);
 	}
 
 	@GetMapping("/email/{email:.+}")
-	public UserList userByEmail(@PathVariable("email") String email) {
+	public UserList userByEmail(@RequestHeader("Authorization") String token, @PathVariable("email") String email) {
 		UserList ret = new UserList((Collection<User>) this.userRepository.findByEmail(email));
 		return ret;
 	}
 
 	@GetMapping("/church/{idChurch}")
-	public UserList usersByChurch(@PathVariable("idChurch") String idChurchString) {
+	public UserList usersByChurch(@RequestHeader("Authorization") String token, @PathVariable("idChurch") String idChurchString) {
 		Church church = churchRepository.findById(Long.valueOf(idChurchString)).get();
 		UserList ret = new UserList((Collection<User>) this.userRepository.findByChurch(church));
 		return ret;
 	}
 
 	@PostMapping
-	public ResponseEntity<UserDto> add(@Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
+	public ResponseEntity<UserDto> add(@RequestHeader("Authorization") String token, @Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
 			throws URISyntaxException {
 		this.throwIfEmailNotUnique(userDto);
 		this.throwIfChurchNofFound(userDto);
@@ -103,7 +104,7 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public UserDto update(@PathVariable("id") long id, @RequestBody UserDto userDto) {
+	public UserDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id, @RequestBody UserDto userDto) {
 		throwIfInconsistent(id, userDto.getIdUser());
 		throwIfNoExisting(id);
 		throwIfEmailNotMatch(userDto);
