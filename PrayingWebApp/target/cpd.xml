@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pmd-cpd>
    <duplication lines="51" tokens="140">
-      <file line="27"
+      <file line="31"
             path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/dto/UserDto.java"/>
-      <file line="66"
+      <file line="75"
             path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/User.java"/>
       <codefragment><![CDATA[	}
 
@@ -56,5 +56,58 @@
 	}
 
 	public Long getChurch() {]]></codefragment>
+   </duplication>
+   <duplication lines="47" tokens="129">
+      <file line="38"
+            path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/dto/ChurchDto.java"/>
+      <file line="68"
+            path="/home/dyck/git/PrayingWebApp/PrayingWebApp/src/main/java/br/com/joaogd53/ads/model/Church.java"/>
+      <codefragment><![CDATA[			this.changedAt = church.getChangedAt();
+		} catch (NullPointerException ex) {
+
+		}
+	}
+
+	public Long getIdChurch() {
+		return idChurch;
+	}
+
+	public void setIdChurch(Long idChurch) {
+		this.idChurch = idChurch;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public Long getCreatedBy() {]]></codefragment>
    </duplication>
 </pmd-cpd>

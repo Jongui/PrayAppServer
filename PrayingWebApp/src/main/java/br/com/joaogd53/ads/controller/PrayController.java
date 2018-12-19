@@ -52,21 +52,28 @@ public class PrayController {
 	}
 
 	@GetMapping
-	public PrayList users() {
+	public PrayList users(@RequestHeader("Authorization") String token) {
 		return new PrayList((Collection<Pray>) this.prayRepository.findAll());
+	}
+
+	@GetMapping("/{idPray}")
+	public PrayDto prayByIdPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
+		Pray pray = this.prayRepository.findById(id).get();
+		PrayDto prayDto = new PrayDto(pray);
+		return prayDto;
 	}
 
 	@GetMapping("/user/{idUser}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public PrayList prayByUser(@RequestHeader("Authorization")String token, @PathVariable("idUser") Long id) {
+	public PrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id) {
 		User user = this.userRepository.findById(id).get();
 		PrayList prayList = new PrayList((Collection<Pray>) this.prayRepository.findByCreator(user));
 		return prayList;
 	}
 
 	@PostMapping
-	public ResponseEntity<PrayDto> add(@RequestHeader("Authorization")String token, @Valid @RequestBody PrayDto prayDto, UriComponentsBuilder uriComponentsBuilder)
-			throws URISyntaxException {
+	public ResponseEntity<PrayDto> add(@RequestHeader("Authorization") String token,
+			@Valid @RequestBody PrayDto prayDto, UriComponentsBuilder uriComponentsBuilder) throws URISyntaxException {
 		this.throwIfIllegalDate(prayDto);
 		User user = userRepository.findById(prayDto.getCreator()).get();
 		Pray pray = new Pray(prayDto, user);
@@ -74,9 +81,10 @@ public class PrayController {
 		UriComponents uriComponents = uriComponentsBuilder.path(PATH + "/{id}").buildAndExpand(praySaved.getIdPray());
 		return ResponseEntity.created(new URI(uriComponents.getPath())).body(new PrayDto(praySaved));
 	}
-	
+
 	@PutMapping("/{id}")
-	public PrayDto update(@RequestHeader("Authorization")String token, @PathVariable("id") long id, @RequestBody PrayDto prayDto) {
+	public PrayDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
+			@RequestBody PrayDto prayDto) {
 		User user = userRepository.findById(prayDto.getCreator()).get();
 		Pray pray = prayRepository.findById(id).get();
 		pray.setBeginDate(prayDto.getBeginDate());
@@ -89,10 +97,10 @@ public class PrayController {
 	private void throwIfIllegalDate(@Valid PrayDto prayDto) {
 		Date beginDate = prayDto.getBeginDate();
 		Date endDate = prayDto.getEndDate();
-		if(endDate.before(beginDate))
+		if (endDate.before(beginDate))
 			throw new EndDateBeforeStartDateException("End date before start date");
 	}
-	
+
 	public static class PrayList {
 		@JsonProperty("value")
 		public List<PrayDto> prays = new ArrayList<>();

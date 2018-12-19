@@ -15,6 +15,7 @@ br/com/joaogd53/ads/controller/UserPrayController$UserPrayList.class
 br/com/joaogd53/ads/dto/AvgDto.class
 br/com/joaogd53/ads/exceptions/NotFoundException.class
 br/com/joaogd53/ads/AppInitializer.class
+br/com/joaogd53/ads/exceptions/ChurchNotFoundException.class
 br/com/joaogd53/ads/config/WebAppContextConfig.class
 br/com/joaogd53/ads/controller/ChurchController$ChurchList.class
 br/com/joaogd53/ads/exceptions/NotAuthorizedException.class
@@ -27,9 +28,11 @@ br/com/joaogd53/ads/model/User.class
 br/com/joaogd53/ads/dto/UserDto.class
 br/com/joaogd53/ads/repository/PrayRepository.class
 br/com/joaogd53/ads/exceptions/EndDateBeforeStartDateException.class
+br/com/joaogd53/ads/dto/ChurchDto.class
 br/com/joaogd53/ads/dto/PrayDto.class
 br/com/joaogd53/ads/controller/PrayController$PrayList.class
 br/com/joaogd53/ads/exceptions/BadRequestException.class
+br/com/joaogd53/ads/exceptions/InvalidUserChangingChurchException.class
 br/com/joaogd53/ads/exceptions/EmailNotUniqueException.class
 br/com/joaogd53/ads/controller/DefaultController.class
 br/com/joaogd53/ads/exceptions/EmailNotMatchException.class

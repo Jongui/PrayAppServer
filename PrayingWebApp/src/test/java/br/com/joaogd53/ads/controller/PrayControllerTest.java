@@ -53,6 +53,7 @@ public class PrayControllerTest {
 
 	private MockMvc mockMvc;
 	private User user;
+	private Pray pray;
 
 	@Before
 	public void setUp() throws Exception {
@@ -61,12 +62,11 @@ public class PrayControllerTest {
 		counter++;
 		String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
 		user = this.mockUserInstance(emailAddress);
-
+		pray = this.mockPray("joaogd53teste" + counter.toString() + "@gmail.com");
 	}
 
 	@Test
 	public void create() throws Exception {
-		Pray pray = this.mockPray("joaogd53@gmail.com");
 
 		mockMvc.perform(buildPostRequest(new PrayDto(pray))).andExpect(status().isCreated())
 				.andExpect(header().string(LOCATION, is(not(""))))
@@ -77,7 +77,6 @@ public class PrayControllerTest {
 
 	@Test
 	public void readAll() throws Exception {
-		Pray pray = this.mockPray("joaogd531@gmail.com");
 		String id = this.performPostAndGetId(pray);
 		pray.setIdPray(new Long(id));
 
@@ -88,7 +87,6 @@ public class PrayControllerTest {
 
 	@Test
 	public void readByUser() throws Exception {
-		Pray pray = this.mockPray("joaogd532@gmail.com");
 		String id = this.performPostAndGetId(pray);
 		pray.setIdPray(new Long(id));
 
@@ -98,8 +96,13 @@ public class PrayControllerTest {
 	}
 
 	@Test
+	public void readByPrayId() throws Exception {
+		String id = this.performPostAndGetId(pray);
+		mockMvc.perform(buildGetRequest(id)).andExpect(jsonPath("$.description", is(pray.getDescription())));
+	}
+
+	@Test
 	public void editPray() throws Exception {
-		Pray pray = this.mockPray("joaogd533@gmail.com");
 		String id = this.performPostAndGetId(pray);
 		pray.setIdPray(new Long(id));
 
@@ -113,7 +116,6 @@ public class PrayControllerTest {
 
 	@Test
 	public void prayDateValidation() throws Exception {
-		Pray pray = this.mockPray("joaogd534@gmail.com");
 		GregorianCalendar newCalendar = new GregorianCalendar();
 		newCalendar.setTime(pray.getBeginDate());
 		newCalendar.add(GregorianCalendar.DATE, -1);
