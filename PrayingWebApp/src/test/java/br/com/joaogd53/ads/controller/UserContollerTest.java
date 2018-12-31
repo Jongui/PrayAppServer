@@ -140,7 +140,69 @@ public class UserContollerTest {
 		userDto.setChurch(new Long(99));
 		mockMvc.perform(buildPutRequest(userDto)).andExpect(status().isBadRequest());
 	}
+	
+	@Test
+	public void searchByPaginate() throws Exception{
+		int i = 0;
+		do {
+			counter++;
+			String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
+			user = this.mockUserInstance(emailAddress);
+			switch(i) {
+			case 0:
+				user.setUserName("Alfredo Júnio");
+				break;
+			case 1:
+				user.setUserName("Alfredo Júnior");
+				break;
+			case 2:
+				user.setUserName("Alfred Brecht");
+				break;
+			case 3:
+				user.setUserName("Glauco Júnio");
+				break;
+			case 4:
+				user.setUserName("Amancio Júnio");
+				break;
+			}
+			performPostAndGetId(user);
+			i++;
+		}while(i < 5);
+		mockMvc.perform(buildGetRequestByUserName("alf", "2"))
+			.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(3)))));
+	}
 
+	@Test
+	public void searchAllByPaginate() throws Exception{
+		int i = 0;
+		do {
+			counter++;
+			String emailAddress = "joaogd53" + counter.toString() + "@gmail.com";
+			user = this.mockUserInstance(emailAddress);
+			switch(i) {
+			case 0:
+				user.setUserName("Alfredo Júnio");
+				break;
+			case 1:
+				user.setUserName("Alfredo Júnior");
+				break;
+			case 2:
+				user.setUserName("Alfred Brecht");
+				break;
+			case 3:
+				user.setUserName("Glauco Júnio");
+				break;
+			case 4:
+				user.setUserName("Amancio Júnio");
+				break;
+			}
+			performPostAndGetId(user);
+			i++;
+		}while(i < 5);
+		mockMvc.perform(buildGetRequestByUserName("*", "10"))
+			.andExpect(jsonPath("$.length()", is(both(greaterThan(0)).and(lessThan(10)))));
+	}
+	
 	private MockHttpServletRequestBuilder buildPutRequest(UserDto user) throws Exception {
 		return put(UserController.PATH + "/" + user.getIdUser()).content(toJson(user))
 				.contentType(APPLICATION_JSON_UTF8).header("Authorization", "test");
@@ -155,6 +217,12 @@ public class UserContollerTest {
 		return get(UserController.PATH + "/email/" + email + "/").header("Authorization", "test");
 	}
 
+	private MockHttpServletRequestBuilder buildGetRequestByUserName(String namePattern, String size) throws Exception{
+		return get(UserController.PATH + "/userName/" + namePattern + "/")
+				.header("Authorization", "test")
+				.param("size", size);
+	}
+	
 	private MockHttpServletRequestBuilder buildGetRequest(String id) throws Exception {
 		return get(UserController.PATH + "/" + id).header("Authorization", "test");
 	}

@@ -12,6 +12,8 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,6 +72,14 @@ public class UserController {
 		return new UserDto(user);
 	}
 
+	@GetMapping("/userName/{userName}")
+	public UserList userByUserName(@RequestHeader("Authorization") String token, @PathVariable("userName") String userName,
+			Pageable pageRequest){
+		Page<User> pageUser = this.userRepository.findByUserNameContainsAllIgnoreCase(userName, pageRequest);
+		UserList ret = new UserList(pageUser.getContent());
+		return ret;
+	}
+	
 	@GetMapping("/email/{email:.+}")
 	public UserList userByEmail(@RequestHeader("Authorization") String token, @PathVariable("email") String email) {
 		UserList ret = new UserList((Collection<User>) this.userRepository.findByEmail(email));
