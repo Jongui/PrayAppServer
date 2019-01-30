@@ -60,8 +60,9 @@ public class UserController {
 	}
 
 	@GetMapping
-	public UserList users() {
-		return new UserList((Collection<User>) this.userRepository.findAll());
+	public UserList users(@RequestHeader("Authorization") String token, Pageable pageRequest) {
+		Page<User> pageUsers = this.userRepository.findAll(pageRequest);
+		return new UserList(pageUsers.getContent());
 	}
 
 	@GetMapping("/{id}")
