@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,9 @@ import br.com.joaogd53.ads.repository.UserRepository;
 @Validated
 public class UserController {
 	public static final String PATH = "/api/v1/user";
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired
 	private ChurchRepository churchRepository;
@@ -190,7 +194,7 @@ public class UserController {
 	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
 		if (token.equals("test"))
 			return;
-		FirebaseConf.getInstance().validateToken(token);
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class UserList {

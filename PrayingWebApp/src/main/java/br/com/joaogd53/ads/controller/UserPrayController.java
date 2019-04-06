@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,9 @@ import br.com.joaogd53.ads.repository.UserRepository;
 @Validated
 public class UserPrayController {
 	public static final String PATH = "/api/v1/userPray";
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired
 	private UserPrayRepository userPrayRepository;
@@ -108,7 +112,7 @@ public class UserPrayController {
 	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
 		if (token.equals("test"))
 			return;
-		FirebaseConf.getInstance().validateToken(token);
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class UserPrayList {

@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,11 @@ public class PrayController {
 	public static final String PATH = "/api/v1/pray";
 
 	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
 	private PrayRepository prayRepository;
+	
 	@Autowired
 	private UserRepository userRepository;
 
@@ -114,7 +119,7 @@ public class PrayController {
 	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
 		if (token.equals("test"))
 			return;
-		FirebaseConf.getInstance().validateToken(token);
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class PrayList {

@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -50,7 +51,11 @@ public class ChurchController {
 	public static final String PATH = "/api/v1/church";
 
 	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
 	private ChurchRepository repo;
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -66,7 +71,8 @@ public class ChurchController {
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public ChurchDto churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) throws FirebaseTokenException {
+	public ChurchDto churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id)
+			throws FirebaseTokenException {
 		this.throwIfUnauthorized(token);
 		throwIfNoExisting(id);
 		System.out.println(token);
@@ -75,7 +81,8 @@ public class ChurchController {
 	}
 
 	@GetMapping("/city/{city}")
-	public ChurchList churchesForCity(@RequestHeader("Authorization") String token, @PathVariable("city") String city) throws FirebaseTokenException {
+	public ChurchList churchesForCity(@RequestHeader("Authorization") String token, @PathVariable("city") String city)
+			throws FirebaseTokenException {
 		this.throwIfUnauthorized(token);
 		return new ChurchList((Collection<Church>) this.repo.findByCity(city));
 	}
@@ -130,7 +137,8 @@ public class ChurchController {
 
 	@DeleteMapping("{id}")
 	@ResponseStatus(NO_CONTENT)
-	public void deleteById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) throws FirebaseTokenException {
+	public void deleteById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id)
+			throws FirebaseTokenException {
 		this.throwIfUnauthorized(token);
 		throwIfNoExisting(id);
 		repo.deleteById(id);
@@ -194,7 +202,7 @@ public class ChurchController {
 	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
 		if (token.equals("test"))
 			return;
-		FirebaseConf.getInstance().validateToken(token);
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class ChurchList {
