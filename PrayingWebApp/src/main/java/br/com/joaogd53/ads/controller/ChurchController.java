@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,8 +32,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.config.FirebaseConf;
 import br.com.joaogd53.ads.dto.ChurchDto;
 import br.com.joaogd53.ads.exceptions.BadRequestException;
+import br.com.joaogd53.ads.exceptions.FirebaseTokenException;
 import br.com.joaogd53.ads.exceptions.InvalidUserChangingChurchException;
 import br.com.joaogd53.ads.exceptions.NotFoundException;
 import br.com.joaogd53.ads.model.Church;
@@ -48,7 +51,11 @@ public class ChurchController {
 	public static final String PATH = "/api/v1/church";
 
 	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
 	private ChurchRepository repo;
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -64,7 +71,9 @@ public class ChurchController {
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public ChurchDto churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
+	public ChurchDto churchById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		throwIfNoExisting(id);
 		System.out.println(token);
 		Church church = this.repo.findById(id).get();
@@ -72,19 +81,23 @@ public class ChurchController {
 	}
 
 	@GetMapping("/city/{city}")
-	public ChurchList churchesForCity(@RequestHeader("Authorization") String token, @PathVariable("city") String city) {
+	public ChurchList churchesForCity(@RequestHeader("Authorization") String token, @PathVariable("city") String city)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		return new ChurchList((Collection<Church>) this.repo.findByCity(city));
 	}
 
 	@GetMapping("/country/{country}")
 	public ChurchList churchesForCountry(@RequestHeader("Authorization") String token,
-			@PathVariable("country") String country) {
+			@PathVariable("country") String country) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		return new ChurchList((Collection<Church>) this.repo.findByCountry(country));
 	}
 
 	@GetMapping("/region/{region}")
 	public ChurchList churchesForRegion(@RequestHeader("Authorization") String token,
-			@PathVariable("region") String region) {
+			@PathVariable("region") String region) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		return new ChurchList((Collection<Church>) this.repo.findByRegion(region));
 	}
 
@@ -95,7 +108,8 @@ public class ChurchController {
 	@PostMapping
 	public ResponseEntity<ChurchDto> add(@RequestHeader("Authorization") String token,
 			@Valid @RequestBody ChurchDto churchDto, UriComponentsBuilder uriComponentsBuilder)
-			throws URISyntaxException {
+			throws URISyntaxException, FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		this.throwIfChurchNotValid(churchDto);
 		User changedBy = new User();
 		User createdBy = userRepository.findById(churchDto.getCreatedBy()).get();
@@ -116,20 +130,24 @@ public class ChurchController {
 
 	@DeleteMapping
 	@ResponseStatus(NO_CONTENT)
-	public void deleteAll(@RequestHeader("Authorization") String token) {
+	public void deleteAll(@RequestHeader("Authorization") String token) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		repo.deleteAll();
 	}
 
 	@DeleteMapping("{id}")
 	@ResponseStatus(NO_CONTENT)
-	public void deleteById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
+	public void deleteById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		throwIfNoExisting(id);
 		repo.deleteById(id);
 	}
 
 	@PutMapping("/{id}")
 	public ChurchDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
-			@RequestBody ChurchDto churchDto) {
+			@RequestBody ChurchDto churchDto) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		throwIfInconsistent(id, churchDto.getIdChurch());
 		throwIfNoExisting(id);
 		throwIfChurchNotValid(churchDto);
@@ -179,6 +197,12 @@ public class ChurchController {
 					expected, actual);
 			throw new BadRequestException(message);
 		}
+	}
+
+	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
+		if (token.equals("test"))
+			return;
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class ChurchList {

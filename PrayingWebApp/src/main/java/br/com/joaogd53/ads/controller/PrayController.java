@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +28,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.config.FirebaseConf;
 import br.com.joaogd53.ads.dto.PrayDto;
 import br.com.joaogd53.ads.exceptions.EndDateBeforeStartDateException;
+import br.com.joaogd53.ads.exceptions.FirebaseTokenException;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
 import br.com.joaogd53.ads.repository.PrayRepository;
@@ -42,7 +45,11 @@ public class PrayController {
 	public static final String PATH = "/api/v1/pray";
 
 	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
 	private PrayRepository prayRepository;
+	
 	@Autowired
 	private UserRepository userRepository;
 
@@ -52,12 +59,15 @@ public class PrayController {
 	}
 
 	@GetMapping
-	public PrayList users(@RequestHeader("Authorization") String token) {
+	public PrayList users(@RequestHeader("Authorization") String token) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		return new PrayList((Collection<Pray>) this.prayRepository.findAll());
 	}
 
 	@GetMapping("/{idPray}")
-	public PrayDto prayByIdPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
+	public PrayDto prayByIdPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		Pray pray = this.prayRepository.findById(id).get();
 		PrayDto prayDto = new PrayDto(pray);
 		return prayDto;
@@ -65,7 +75,9 @@ public class PrayController {
 
 	@GetMapping("/user/{idUser}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public PrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id) {
+	public PrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		User user = this.userRepository.findById(id).get();
 		PrayList prayList = new PrayList((Collection<Pray>) this.prayRepository.findByCreator(user));
 		return prayList;
@@ -73,7 +85,9 @@ public class PrayController {
 
 	@PostMapping
 	public ResponseEntity<PrayDto> add(@RequestHeader("Authorization") String token,
-			@Valid @RequestBody PrayDto prayDto, UriComponentsBuilder uriComponentsBuilder) throws URISyntaxException {
+			@Valid @RequestBody PrayDto prayDto, UriComponentsBuilder uriComponentsBuilder)
+			throws URISyntaxException, FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		this.throwIfIllegalDate(prayDto);
 		User user = userRepository.findById(prayDto.getCreator()).get();
 		Pray pray = new Pray(prayDto, user);
@@ -84,7 +98,8 @@ public class PrayController {
 
 	@PutMapping("/{id}")
 	public PrayDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
-			@RequestBody PrayDto prayDto) {
+			@RequestBody PrayDto prayDto) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		User user = userRepository.findById(prayDto.getCreator()).get();
 		Pray pray = prayRepository.findById(id).get();
 		pray.setBeginDate(prayDto.getBeginDate());
@@ -99,6 +114,12 @@ public class PrayController {
 		Date endDate = prayDto.getEndDate();
 		if (endDate.before(beginDate))
 			throw new EndDateBeforeStartDateException("End date before start date");
+	}
+
+	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
+		if (token.equals("test"))
+			return;
+		FirebaseConf.getInstance(this.context).validateToken(token);
 	}
 
 	public static class PrayList {
