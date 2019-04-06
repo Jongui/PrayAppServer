@@ -339,7 +339,7 @@ public class ChurchControllerTest {
 		calendar.add(GregorianCalendar.DATE, +2);
 		church.setChangedAt(changed);
 		church.setChangedBy(changer);
-		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isBadRequest());
+		mockMvc.perform(buildPutRequest(id, church)).andExpect(status().isUnauthorized());
 	}
 
 	private MockHttpServletRequestBuilder buildDeleteRequest(String id) throws Exception {
