@@ -20,8 +20,10 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.config.FirebaseConf;
 import br.com.joaogd53.ads.dto.AvgDto;
 import br.com.joaogd53.ads.dto.UserPrayDto;
+import br.com.joaogd53.ads.exceptions.FirebaseTokenException;
 import br.com.joaogd53.ads.model.Pray;
 import br.com.joaogd53.ads.model.User;
 import br.com.joaogd53.ads.model.UserPray;
@@ -47,27 +49,35 @@ public class UserPrayController {
 	private PrayRepository prayRepository;
 
 	@GetMapping("/user/{idUser}")
-	public UserPrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id) {
+	public UserPrayList prayByUser(@RequestHeader("Authorization") String token, @PathVariable("idUser") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		User user = userRepository.findById(id).get();
 		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdUser(user));
 		return prayList;
 	}
 
 	@GetMapping("/pray/{idPray}")
-	public UserPrayList userByPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
+	public UserPrayList userByPray(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		Pray pray = prayRepository.findById(id).get();
 		UserPrayList prayList = new UserPrayList((Collection<UserPray>) this.userPrayRepository.findByIdPray(pray));
 		return prayList;
 	}
 
 	@GetMapping("/avg/{idPray}")
-	public AvgDto calcPrayAvg(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id) {
+	public AvgDto calcPrayAvg(@RequestHeader("Authorization") String token, @PathVariable("idPray") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		float avg = userPrayRepository.calculatePrayAvg(id);
 		return new AvgDto(avg);
 	}
 
 	@PostMapping
-	public UserPrayDto add(@RequestHeader("Authorization") String token, @Valid @RequestBody UserPrayDto userPrayDto) {
+	public UserPrayDto add(@RequestHeader("Authorization") String token, @Valid @RequestBody UserPrayDto userPrayDto)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		UserPray userPraySaved;
 		Pray pray = prayRepository.findById(userPrayDto.getPray()).get();
 		User user = userRepository.findById(userPrayDto.getUser()).get();
@@ -84,7 +94,8 @@ public class UserPrayController {
 
 	@PutMapping("/{idUser}")
 	public UserPrayDto update(@RequestHeader("Authorization") String token, @PathVariable("idUser") long id,
-			@RequestBody UserPrayDto userPrayDto) {
+			@RequestBody UserPrayDto userPrayDto) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		User user = this.userRepository.findById(id).get();
 		Pray pray = this.prayRepository.findById(userPrayDto.getPray()).get();
 		UserPray userPray = this.userPrayRepository.findById(new UserPrayIdentity(user, pray)).get();
@@ -92,6 +103,12 @@ public class UserPrayController {
 		userPray.setExitDate(userPrayDto.getExitDate());
 		userPray.setRate(userPrayDto.getRate());
 		return new UserPrayDto(this.userPrayRepository.save(userPray));
+	}
+
+	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
+		if (token.equals("test"))
+			return;
+		FirebaseConf.getInstance().validateToken(token);
 	}
 
 	public static class UserPrayList {

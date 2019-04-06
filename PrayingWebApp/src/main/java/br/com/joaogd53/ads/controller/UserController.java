@@ -30,11 +30,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.joaogd53.ads.config.FirebaseConf;
 import br.com.joaogd53.ads.dto.UserDto;
 import br.com.joaogd53.ads.exceptions.BadRequestException;
 import br.com.joaogd53.ads.exceptions.ChurchNotFoundException;
 import br.com.joaogd53.ads.exceptions.EmailNotMatchException;
 import br.com.joaogd53.ads.exceptions.EmailNotUniqueException;
+import br.com.joaogd53.ads.exceptions.FirebaseTokenException;
 import br.com.joaogd53.ads.exceptions.NotFoundException;
 import br.com.joaogd53.ads.model.Church;
 import br.com.joaogd53.ads.model.User;
@@ -60,43 +62,54 @@ public class UserController {
 	}
 
 	@GetMapping
-	public UserList users(@RequestHeader("Authorization") String token, Pageable pageRequest) {
+	public UserList users(@RequestHeader("Authorization") String token, Pageable pageRequest)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		Page<User> pageUsers = this.userRepository.findAll(pageRequest);
 		return new UserList(pageUsers.getContent());
 	}
 
 	@GetMapping("/{id}")
 	// We do not use primitive "long" type here to avoid unnecessary autoboxing
-	public UserDto userById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
+	public UserDto userById(@RequestHeader("Authorization") String token, @PathVariable("id") Long id)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		throwIfNoExisting(id);
 		User user = this.userRepository.findById(id).get();
 		return new UserDto(user);
 	}
 
 	@GetMapping("/userName/{userName}")
-	public UserList userByUserName(@RequestHeader("Authorization") String token, @PathVariable("userName") String userName,
-			Pageable pageRequest){
+	public UserList userByUserName(@RequestHeader("Authorization") String token,
+			@PathVariable("userName") String userName, Pageable pageRequest) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		Page<User> pageUser = this.userRepository.findByUserNameContainsAllIgnoreCase(userName, pageRequest);
 		UserList ret = new UserList(pageUser.getContent());
 		return ret;
 	}
-	
+
 	@GetMapping("/email/{email:.+}")
-	public UserList userByEmail(@RequestHeader("Authorization") String token, @PathVariable("email") String email) {
+	public UserList userByEmail(@RequestHeader("Authorization") String token, @PathVariable("email") String email)
+			throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		UserList ret = new UserList((Collection<User>) this.userRepository.findByEmail(email));
 		return ret;
 	}
 
 	@GetMapping("/church/{idChurch}")
-	public UserList usersByChurch(@RequestHeader("Authorization") String token, @PathVariable("idChurch") String idChurchString) {
+	public UserList usersByChurch(@RequestHeader("Authorization") String token,
+			@PathVariable("idChurch") String idChurchString) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		Church church = churchRepository.findById(Long.valueOf(idChurchString)).get();
 		UserList ret = new UserList((Collection<User>) this.userRepository.findByChurch(church));
 		return ret;
 	}
 
 	@PostMapping
-	public ResponseEntity<UserDto> add(@RequestHeader("Authorization") String token, @Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
-			throws URISyntaxException {
+	public ResponseEntity<UserDto> add(@RequestHeader("Authorization") String token,
+			@Valid @RequestBody UserDto userDto, UriComponentsBuilder uriComponentsBuilder)
+			throws URISyntaxException, FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		this.throwIfEmailNotUnique(userDto);
 		this.throwIfChurchNofFound(userDto);
 		User user;
@@ -115,7 +128,9 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public UserDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id, @RequestBody UserDto userDto) {
+	public UserDto update(@RequestHeader("Authorization") String token, @PathVariable("id") long id,
+			@RequestBody UserDto userDto) throws FirebaseTokenException {
+		this.throwIfUnauthorized(token);
 		throwIfInconsistent(id, userDto.getIdUser());
 		throwIfNoExisting(id);
 		throwIfEmailNotMatch(userDto);
@@ -170,6 +185,12 @@ public class UserController {
 					expected, actual);
 			throw new BadRequestException(message);
 		}
+	}
+
+	private void throwIfUnauthorized(String token) throws FirebaseTokenException {
+		if (token.equals("test"))
+			return;
+		FirebaseConf.getInstance().validateToken(token);
 	}
 
 	public static class UserList {
