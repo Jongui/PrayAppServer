@@ -30,8 +30,10 @@ br/com/joaogd53/ads/repository/PrayRepository.class
 br/com/joaogd53/ads/exceptions/EndDateBeforeStartDateException.class
 br/com/joaogd53/ads/dto/ChurchDto.class
 br/com/joaogd53/ads/dto/PrayDto.class
+br/com/joaogd53/ads/config/FirebaseConf.class
 br/com/joaogd53/ads/controller/PrayController$PrayList.class
 br/com/joaogd53/ads/exceptions/BadRequestException.class
+br/com/joaogd53/ads/exceptions/FirebaseTokenException.class
 br/com/joaogd53/ads/exceptions/InvalidUserChangingChurchException.class
 br/com/joaogd53/ads/exceptions/EmailNotUniqueException.class
 br/com/joaogd53/ads/controller/DefaultController.class
